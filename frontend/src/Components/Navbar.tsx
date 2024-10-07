@@ -74,6 +74,12 @@ export default function Navbar({
                             </a>
                         </li>
                         <li>
+                            <a href="/open-content-management">
+                                <BookOpenIcon className="h-4" />
+                                Open Content
+                            </a>
+                        </li>
+                        <li>
                             <a href="/resources-management">
                                 <ArchiveBoxIcon className="h-4" />
                                 Resources

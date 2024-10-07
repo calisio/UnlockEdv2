@@ -18,6 +18,7 @@ import UnauthorizedNotFound from './Pages/Unauthorized';
 import AdminManagement from '@/Pages/AdminManagement.tsx';
 import StudentManagement from '@/Pages/StudentManagement.tsx';
 import { useAuth } from './useAuth';
+import OpenContentManagement from './Pages/OpenContentManagement';
 
 function WithAuth({ children }) {
     return <AuthProvider>{children}</AuthProvider>;
@@ -68,6 +69,11 @@ export default function App() {
         {
             path: '/admin-management',
             element: WithAdmin({ children: <AdminManagement /> }),
+            errorElement: <Error />
+        },
+        {
+            path: '/open-content-management',
+            element: WithAdmin({ children: <OpenContentManagement /> }),
             errorElement: <Error />
         },
         {
