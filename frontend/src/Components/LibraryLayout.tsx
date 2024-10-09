@@ -29,7 +29,6 @@ export default function LibaryLayout({
         value: 'all'
     };
     const [activeTab, setActiveTab] = useState<Tab>(allLibrariesTab);
-
     const [filterLibraries, setFilterLibraries] = useState<FilterLibraries>(
         FilterLibraries['All Libraries']
     );
@@ -56,7 +55,7 @@ export default function LibaryLayout({
                 value: provider.id
             })) ?? [])
         ];
-    }, [openContentProviders]);
+    }, [openContentProviders]); //eslint-disable-line
 
     return (
         <div className="pt-6 space-y-6">
