@@ -110,6 +110,12 @@ export default function Navbar({
                                 <TrophyIcon className="w-4" /> My Progress
                             </a>
                         </li>
+                        <li>
+                            <a href="/open-content">
+                                <BookOpenIcon className="h-4" />
+                                Open Content
+                            </a>
+                        </li>
                         <li className="">
                             <a href="/course-catalog">
                                 <BuildingStorefrontIcon className="w-4" />{' '}

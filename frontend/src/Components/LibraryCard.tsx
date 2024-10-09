@@ -1,6 +1,12 @@
 import { useState } from 'react';
 import VisibleHiddenToggle from './VisibleHiddenToggle';
-import { Library, ServerResponse, ToastProps, ToastState } from '@/common';
+import {
+    Library,
+    ServerResponse,
+    ToastProps,
+    ToastState,
+    UserRole
+} from '@/common';
 import API from '@/api/api';
 import { KeyedMutator } from 'swr';
 
@@ -9,11 +15,13 @@ import { KeyedMutator } from 'swr';
 export default function LibraryCard({
     library,
     setToast,
-    mutate
+    mutate,
+    role
 }: {
     library: Library;
     setToast: React.Dispatch<React.SetStateAction<ToastProps>>;
     mutate: KeyedMutator<ServerResponse<Library[]>>;
+    role: string;
 }) {
     const [visible, setVisible] = useState<boolean>(library.visibility_status);
 
@@ -67,10 +75,12 @@ export default function LibraryCard({
                 <p className="body-small h-[40px] leading-5 line-clamp-2">
                     {library?.description}
                 </p>
-                <VisibleHiddenToggle
-                    visible={visible}
-                    changeVisibility={changeVisibility}
-                />
+                {role == UserRole.Admin && (
+                    <VisibleHiddenToggle
+                        visible={visible}
+                        changeVisibility={changeVisibility}
+                    />
+                )}
             </div>
         </div>
     );

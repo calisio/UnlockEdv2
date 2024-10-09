@@ -446,3 +446,12 @@ export interface ToastProps {
     state: ToastState;
     message: string;
 }
+
+export enum FilterLibraries {
+    'All Libraries' = 'all'
+}
+export enum FilterLibrariesAdmin {
+    'All Libraries' = 'all',
+    'Visible' = '&visibility=visible',
+    'Hidden' = '&visibility=hidden'
+}
