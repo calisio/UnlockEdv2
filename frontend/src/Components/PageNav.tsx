@@ -3,6 +3,7 @@ import { handleLogout, useAuth } from '@/useAuth';
 import {
     ArrowRightEndOnRectangleIcon,
     Bars3Icon,
+    BuildingOffice2Icon,
     HomeIcon
 } from '@heroicons/react/24/solid';
 
@@ -107,8 +108,8 @@ export default function PageNav({
                                 </span>
                             )}
                         </summary>
-                        <ul className="dropdown-content bg-grey-2 z-[1] dark:bg-grey-1">
-                            <li>
+                        <ul className="dropdown-content w-max bg-grey-2 z-[1] dark:bg-grey-1 flex flex-col">
+                            <li className="self-center">
                                 <label className="flex cursor-pointer gap-2">
                                     <ULIComponent
                                         icon={SunIcon}
@@ -121,9 +122,27 @@ export default function PageNav({
                                     />
                                 </label>
                             </li>
+                            <li>
+                                <details>
+                                    <summary className="flex gap-2">
+                                        <ULIComponent
+                                            icon={BuildingOffice2Icon}
+                                        />
+                                        <span>Switch Facility</span>
+                                    </summary>
+                                    <ul>
+                                        <li>
+                                            <a>level 2 item 1</a>
+                                        </li>
+                                        <li>
+                                            <a>level 2 item 2</a>
+                                        </li>
+                                    </ul>
+                                </details>
+                            </li>
                             <div className="divider mt-0 mb-0"></div>
 
-                            <li>
+                            <li className="self-center">
                                 <button
                                     onClick={() => {
                                         void handleLogout();
