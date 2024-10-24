@@ -12,6 +12,9 @@ import { SunIcon, MoonIcon } from '@heroicons/react/24/outline';
 import ThemeToggle from './ThemeToggle';
 import ULIComponent from '@/Components/ULIComponent.tsx';
 import { usePathValue } from '@/PathValueCtx';
+import { Facility, UserRole } from '@/common';
+import { useLoaderData } from 'react-router-dom';
+import API from '@/api/api';
 
 export default function PageNav({
     path,
@@ -26,6 +29,7 @@ export default function PageNav({
     const detailsRef = useRef<HTMLDetailsElement>(null);
     const { pathVal } = usePathValue();
     const [customPath, setCustomPath] = useState<string[]>(path ?? []);
+    const facilityNames = useLoaderData() as Facility[] | null;
 
     useEffect(() => {
         const handlePathChange = () => {
@@ -60,6 +64,13 @@ export default function PageNav({
             window.removeEventListener('click', closeDropdown);
         };
     }, []);
+
+    const handleSwitchFacility = async (facility: Facility) => {
+        const resp = await API.put(`admin/facility-context/${facility.id}`, {});
+        if (resp.success) {
+            window.location.reload();
+        }
+    };
 
     return (
         <div className="px-8 flex justify-between items-center">
@@ -98,6 +109,34 @@ export default function PageNav({
                     ))}
                 </ul>
             </div>
+            {user?.role == UserRole.Admin ? (
+                <ul className="menu menu-horizontal px-1">
+                    <li>
+                        <details className="dropdown dropdown-end">
+                            <summary>
+                                <ULIComponent icon={BuildingOffice2Icon} />
+                                <span className="font-semibold">
+                                    {user.facility_name ?? 'Choose Facility'}
+                                </span>
+                            </summary>
+                            <ul className="dropdown-content w-max bg-grey-2 z-[1] dark:bg-grey-1 flex flex-col">
+                                {facilityNames?.map((facility: Facility) => (
+                                    <li
+                                        key={facility.id}
+                                        onClick={() => {
+                                            void handleSwitchFacility(facility);
+                                        }}
+                                    >
+                                        <span>{facility.name}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </details>
+                    </li>
+                </ul>
+            ) : (
+                <div>{user?.facility_name}</div>
+            )}
             <ul className="menu menu-horizontal px-1">
                 <li>
                     <details className="dropdown dropdown-end" ref={detailsRef}>
@@ -122,26 +161,7 @@ export default function PageNav({
                                     />
                                 </label>
                             </li>
-                            <li>
-                                <details>
-                                    <summary className="flex gap-2">
-                                        <ULIComponent
-                                            icon={BuildingOffice2Icon}
-                                        />
-                                        <span>Switch Facility</span>
-                                    </summary>
-                                    <ul>
-                                        <li>
-                                            <a>level 2 item 1</a>
-                                        </li>
-                                        <li>
-                                            <a>level 2 item 2</a>
-                                        </li>
-                                    </ul>
-                                </details>
-                            </li>
                             <div className="divider mt-0 mb-0"></div>
-
                             <li className="self-center">
                                 <button
                                     onClick={() => {

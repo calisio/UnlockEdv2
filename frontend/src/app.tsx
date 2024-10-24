@@ -28,6 +28,7 @@ import { PathValueProvider } from '@/PathValueCtx';
 import AdminDashboard from './Pages/AdminDashboard.tsx';
 import StudentDashboard from './Pages/StudentDashboard.tsx';
 import Dashboard from './Pages/Dashboard.tsx';
+import { getFacilities } from './facilities.ts';
 
 const WithAuth: React.FC = () => {
     return (
@@ -150,6 +151,7 @@ const router = createBrowserRouter([
         children: [
             {
                 element: <AuthenticatedLayout />,
+                loader: getFacilities,
                 children: [
                     {
                         path: 'admin-dashboard',
