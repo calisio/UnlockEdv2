@@ -42,7 +42,7 @@ export default function LibraryViewer() {
                 )) as ServerResponseOne<Library>;
                 if (resp.success) {
                     setPathVal([
-                        { path_id: ':library_name', value: resp.data.name }
+                        { path_id: ':library_name', value: resp.data.title }
                     ]);
                     setProviderID(resp.data.open_content_provider_id);
                     setFavorited(resp.data.is_favorited ?? false);

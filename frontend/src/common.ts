@@ -696,9 +696,9 @@ export interface Library {
     description: string | null;
     external_id: string | null;
     id: number;
-    image_url: string | null;
+    thumbnail_url: string | null;
     language: string | null;
-    name: string;
+    title: string;
     open_content_provider_id: number;
     updated_at: string;
     url: string;

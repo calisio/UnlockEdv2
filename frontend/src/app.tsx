@@ -34,7 +34,7 @@ import AuthenticatedLayout from './Layouts/AuthenticatedLayout.tsx';
 import { PathValueProvider } from '@/Context/PathValueCtx';
 import AdminDashboard from './Pages/AdminDashboard.tsx';
 import StudentDashboard from './Pages/StudentDashboard.tsx';
-import { getOpenContentProviders, getFacilities } from './routeLoaders.ts';
+import { getFacilities, getRightSidebarData } from './routeLoaders.ts';
 
 import FacilityManagement from '@/Pages/FacilityManagement.tsx';
 
@@ -108,7 +108,7 @@ const router = createBrowserRouter([
                     {
                         path: 'student-dashboard',
                         element: <StudentDashboard />,
-                        loader: getOpenContentProviders,
+                        loader: getRightSidebarData,
                         handle: { title: 'Dashboard', path: ['dashboard'] }
                     },
                     {

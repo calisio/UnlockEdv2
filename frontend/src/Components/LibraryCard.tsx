@@ -83,11 +83,11 @@ export default function LibraryCard({
             <div className="flex p-4 gap-2 border-b-2">
                 <figure className="w-[48px] h-[48px] bg-cover">
                     <img
-                        src={library.image_url ?? ''}
-                        alt={`${library.name} thumbnail`}
+                        src={library.thumbnail_url ?? ''}
+                        alt={`${library.title} thumbnail`}
                     />
                 </figure>
-                <h3 className="w-3/4 body my-auto">{library.name}</h3>
+                <h3 className="w-3/4 body my-auto">{library.title}</h3>
                 <div onClick={(e) => e.stopPropagation()}>{favoriteIcon}</div>
             </div>
             <div className="p-4 space-y-2">

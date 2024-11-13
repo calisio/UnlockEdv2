@@ -2,19 +2,25 @@ import { json, LoaderFunction } from 'react-router-dom';
 import {
     Facility,
     OpenContentProvider,
-    ServerResponse,
-    ServerResponseMany
+    ResourceCategory,
+    ServerResponse
 } from './common';
 import API from './api/api';
 
-export const getOpenContentProviders: LoaderFunction = async () => {
-    const resp = (await API.get(
-        `open-content`
-    )) as ServerResponseMany<OpenContentProvider>;
-    if (resp.success) {
-        return json<OpenContentProvider[]>(resp.data);
-    }
-    return json<OpenContentProvider[]>([]);
+export const getRightSidebarData: LoaderFunction = async () => {
+    const [resourcesResp, openContentResp] = await Promise.all([
+        API.get(`left-menu`),
+        API.get(`open-content`)
+    ]);
+
+    const resourcesData = resourcesResp.success
+        ? (resourcesResp.data as ResourceCategory[])
+        : [];
+    const openContentData = openContentResp.success
+        ? (openContentResp.data as OpenContentProvider[])
+        : [];
+
+    return json({ resources: resourcesData, providers: openContentData });
 };
 
 export const getFacilities: LoaderFunction = async () => {
