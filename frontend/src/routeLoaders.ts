@@ -7,6 +7,16 @@ import {
 } from './common';
 import API from './api/api';
 
+export const getOpenContentDashboardData: LoaderFunction = async () => {
+    const [resourcesResp] = await Promise.all([API.get(`left-menu`)]);
+
+    const resourcesData = resourcesResp.success
+        ? (resourcesResp.data as ResourceCategory[])
+        : [];
+
+    return json({ resources: resourcesData });
+};
+
 export const getRightSidebarData: LoaderFunction = async () => {
     const [resourcesResp, openContentResp] = await Promise.all([
         API.get(`left-menu`),

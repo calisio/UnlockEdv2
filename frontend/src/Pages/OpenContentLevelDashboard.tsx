@@ -1,6 +1,8 @@
-import { Library } from '@/common';
+import { Library, ResourceCategory } from '@/common';
 import OpenContentCard from '@/Components/cards/OpenContentCard';
+import ResourcesCategoryCard from '@/Components/ResourcesCategoryCard';
 import { useAuth } from '@/useAuth';
+import { useLoaderData } from 'react-router-dom';
 
 const favorites: Library[] = [
     {
@@ -49,9 +51,12 @@ const favorites: Library[] = [
 
 export default function OpenContentLevelDashboard() {
     const { user } = useAuth();
+    const { resources } = useLoaderData() as {
+        resources: ResourceCategory[];
+    };
 
     return (
-        <div className="flex flex-row">
+        <div className="flex flex-row h-full">
             {/* main section */}
             <div className="w-full flex flex-col gap-6 px-6 pb-4">
                 <h1 className="text-5xl">
@@ -61,10 +66,34 @@ export default function OpenContentLevelDashboard() {
                 <div className="grid grid-cols-2 gap-6">
                     <div className="card card-row-padding flex flex-col gap-3">
                         <h2>Your Top Open Content</h2>
+                        {favorites.map((favorite) => {
+                            return (
+                                <OpenContentCard
+                                    key={favorite.id}
+                                    content={favorite}
+                                />
+                            );
+                        })}
                     </div>
                     <div className="card card-row-padding flex flex-col gap-3">
                         <h2>Popular Open Content</h2>
+                        {favorites.map((favorite) => {
+                            return (
+                                <OpenContentCard
+                                    key={favorite.id}
+                                    content={favorite}
+                                />
+                            );
+                        })}
                     </div>
+                </div>
+                <h2>Resources</h2>
+                <div className="card card-row-padding overflow-x-scroll">
+                    {resources.map((resource: ResourceCategory) => (
+                        <div key={resource.id} className="w-[252px]">
+                            <ResourcesCategoryCard category={resource} />
+                        </div>
+                    ))}
                 </div>
             </div>
             {/* right sidebar */}
