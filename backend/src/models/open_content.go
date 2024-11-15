@@ -74,6 +74,14 @@ type OpenContentParams struct {
 	OpenContentProviderID uint
 }
 
+type OpenContentItem struct {
+	Name                  string `json:"name"`
+	Url                   string `json:"url"`
+	ThumbnailUrl          string `json:"thumbnail_url"`
+	OpenContentProviderId uint   `json:"open_content_provider_id"`
+	ContentId             uint   `json:"content_id"`
+}
+
 const (
 	KolibriThumbnailUrl string = "https://learningequality.org/static/assets/kolibri-ecosystem-logos/blob-logo.svg"
 	Kiwix               string = "Kiwix"
