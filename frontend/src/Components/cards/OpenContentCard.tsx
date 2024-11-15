@@ -1,9 +1,9 @@
-import { Library, Video } from '@/common';
+import { OpenContentItem } from '@/common';
 
 export default function OpenContentCardRow({
     content
 }: {
-    content: Library | Video;
+    content: OpenContentItem;
 }) {
     return (
         <div className="card flex flex-row w-full gap-3 px-4 py-2">
@@ -13,7 +13,7 @@ export default function OpenContentCardRow({
                     src={content.thumbnail_url ?? ''}
                 ></img>
             </div>
-            <h3 className="my-auto">{content.title ?? 'Untitled'}</h3>
+            <h3 className="my-auto">{content.name ?? 'Untitled'}</h3>
         </div>
     );
 }

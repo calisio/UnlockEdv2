@@ -158,10 +158,10 @@ func (db *DB) GetUserFavorites(userID uint) ([]models.CombinedFavorite, error) {
 
 func (db *DB) GetTopFacilityOpenContent(id int) ([]models.OpenContentItem, error) {
 	var content []models.OpenContentItem
-	if err := db.Raw("? UNION ?",
-		db.Select("v.title as name, v.title as name, v.url, v.thumbnail_url, v.open_content_provider_id, count(v.id) as visits").Table("open_content_activities oca").Joins("LEFT JOIN videos v ON v.id = oca.content_id AND v.open_content_provider_id = oca.open_content_provider_id AND v.visibility_status = TRUE").Where("oca.facility_id = ?", id).Group("v.title, v.url, v.thumbnail_url, v.open_content_provider_id"),
-		db.Select("l.name, l.path as url, l.image_url as thumbnail_url, l.open_content_provider_id, count(l.id) as visits").Table("open_content_activities oca").Joins("LEFT JOIN libraries l on l.id = oca.content_id AND l.open_content_provider_id = oca.open_content_provider_id AND l.visibility_status = TRUE").Where("oca.facility_id = ?", id).Group("l.name, l.path, l.image_url, l.open_content_provider_id"),
-	).Order("visits desc").Limit(5).Find(&content).Error; err != nil {
+	if err := db.Raw("? UNION ? ORDER BY visits DESC LIMIT 5",
+		db.Select("v.title as name, v.url, v.thumbnail_url, v.open_content_provider_id, v.id as content_id, count(v.id) as visits").Table("open_content_activities oca").Joins("LEFT JOIN videos v ON v.id = oca.content_id AND v.open_content_provider_id = oca.open_content_provider_id AND v.visibility_status = TRUE").Where("oca.facility_id = ?", id).Group("v.title, v.url, v.thumbnail_url, v.open_content_provider_id, v.id"),
+		db.Select("l.name, l.path as url, l.image_url as thumbnail_url, l.open_content_provider_id, l.id as content_id, count(l.id) as visits").Table("open_content_activities oca").Joins("LEFT JOIN libraries l on l.id = oca.content_id AND l.open_content_provider_id = oca.open_content_provider_id AND l.visibility_status = TRUE").Where("oca.facility_id = ?", id).Group("l.name, l.path, l.image_url, l.open_content_provider_id, l.id"),
+	).Find(&content).Error; err != nil {
 		return nil, newGetRecordsDBError(err, "open_content_items")
 	}
 	return content, nil
@@ -169,10 +169,11 @@ func (db *DB) GetTopFacilityOpenContent(id int) ([]models.OpenContentItem, error
 
 func (db *DB) GetTopUserOpenContent(id int) ([]models.OpenContentItem, error) {
 	var content []models.OpenContentItem
-	if err := db.Raw("? UNION ?",
-		db.Select("v.title as name, v.title as name, v.url, v.thumbnail_url, v.open_content_provider_id, count(v.id) as visits").Table("open_content_activities oca").Joins("LEFT JOIN videos v ON v.id = oca.content_id AND v.open_content_provider_id = oca.open_content_provider_id AND v.visibility_status = TRUE").Where("oca.user_id = ?", id).Group("v.title, v.url, v.thumbnail_url, v.open_content_provider_id"),
-		db.Select("l.name, l.path as url, l.image_url as thumbnail_url, l.open_content_provider_id, count(l.id) as visits").Table("open_content_activities oca").Joins("LEFT JOIN libraries l on l.id = oca.content_id AND l.open_content_provider_id = oca.open_content_provider_id AND l.visibility_status = TRUE").Where("oca.user_id = ?", id).Group("l.name, l.path, l.image_url, l.open_content_provider_id"),
-	).Order("visits desc").Limit(5).Find(&content).Error; err != nil {
+	log.Println(id)
+	if err := db.Raw("? UNION ? ORDER BY visits DESC LIMIT 5",
+		db.Select("v.title as name, v.url, v.thumbnail_url, v.open_content_provider_id, v.id as content_id, count(v.id) as visits").Table("open_content_activities oca").Joins("LEFT JOIN videos v ON v.id = oca.content_id AND v.open_content_provider_id = oca.open_content_provider_id AND v.visibility_status = TRUE").Where("oca.user_id = ?", id).Group("v.title, v.url, v.thumbnail_url, v.open_content_provider_id, v.id"),
+		db.Select("l.name, l.path as url, l.image_url as thumbnail_url, l.open_content_provider_id, l.id as content_id, count(l.id) as visits").Table("open_content_activities oca").Joins("LEFT JOIN libraries l on l.id = oca.content_id AND l.open_content_provider_id = oca.open_content_provider_id AND l.visibility_status = TRUE").Where("oca.user_id = ?", id).Group("l.name, l.path, l.image_url, l.open_content_provider_id, l.id"),
+	).Find(&content).Error; err != nil {
 		return nil, newGetRecordsDBError(err, "open_content_items")
 	}
 	return content, nil

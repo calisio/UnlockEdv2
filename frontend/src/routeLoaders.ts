@@ -1,20 +1,38 @@
 import { json, LoaderFunction } from 'react-router-dom';
 import {
     Facility,
+    OpenContentItem,
     OpenContentProvider,
     ResourceCategory,
     ServerResponse
 } from './common';
 import API from './api/api';
+import { fetchUser } from './useAuth';
 
 export const getOpenContentDashboardData: LoaderFunction = async () => {
-    const [resourcesResp] = await Promise.all([API.get(`left-menu`)]);
+    const user = await fetchUser();
+    const [resourcesResp, userContentResp, facilityContentResp] =
+        await Promise.all([
+            API.get(`left-menu`),
+            API.get(`open-content/activity/${user?.id}`),
+            API.get(`open-content/activity`)
+        ]);
 
     const resourcesData = resourcesResp.success
         ? (resourcesResp.data as ResourceCategory[])
         : [];
+    const topUserOpenContent = userContentResp.success
+        ? (userContentResp.data as OpenContentItem[])
+        : [];
+    const topFacilityOpenContent = facilityContentResp.success
+        ? (facilityContentResp.data as OpenContentItem[])
+        : [];
 
-    return json({ resources: resourcesData });
+    return json({
+        resources: resourcesData,
+        topUserContent: topUserOpenContent,
+        topFacilityContent: topFacilityOpenContent
+    });
 };
 
 export const getRightSidebarData: LoaderFunction = async () => {

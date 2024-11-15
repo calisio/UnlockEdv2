@@ -773,3 +773,11 @@ export enum Timezones {
     'america/denver' = 'America/Denver',
     'america/phoenix' = 'America/Phoenix'
 }
+
+export interface OpenContentItem {
+    name: string;
+    url: string;
+    thumbnail_url: string | null;
+    open_content_provider_id: number;
+    content_id: number;
+}
