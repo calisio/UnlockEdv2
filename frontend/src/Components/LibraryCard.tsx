@@ -84,10 +84,10 @@ export default function LibraryCard({
                 <figure className="w-[48px] h-[48px] bg-cover">
                     <img
                         src={library.thumbnail_url ?? ''}
-                        alt={`${library.title} thumbnail`}
+                        alt={`${library.name} thumbnail`}
                     />
                 </figure>
-                <h3 className="w-3/4 body my-auto">{library.title}</h3>
+                <h3 className="w-3/4 body my-auto">{library.name}</h3>
                 <div onClick={(e) => e.stopPropagation()}>{favoriteIcon}</div>
             </div>
             <div className="p-4 space-y-2">

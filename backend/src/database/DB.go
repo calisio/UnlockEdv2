@@ -209,32 +209,6 @@ func (db *DB) SeedTestData() {
 			log.Fatalf("Failed to create platform: %v", err)
 		}
 	}
-	openContent, err := os.ReadFile("test_data/open_content.json")
-	if err != nil {
-		log.Fatalf("Failed to read test data: %v", err)
-	}
-	var openContentProviders []models.OpenContentProvider
-	if err := json.Unmarshal(openContent, &openContentProviders); err != nil {
-		log.Fatalf("Failed to unmarshal test data: %v", err)
-	}
-	for i := range openContentProviders {
-		if err := db.Create(&openContentProviders[i]).Error; err != nil {
-			log.Fatalf("Failed to create open content provider: %v", err)
-		}
-	}
-	libraries, err := os.ReadFile("test_data/libraries.json")
-	if err != nil {
-		log.Fatalf("Failed to read test data: %v", err)
-	}
-	var library []models.Library
-	if err := json.Unmarshal(libraries, &library); err != nil {
-		log.Fatalf("Failed to unmarshal test data: %v", err)
-	}
-	for i := range library {
-		if err := db.Create(&library[i]).Error; err != nil {
-			log.Fatalf("Failed to create library: %v", err)
-		}
-	}
 	oidcFile, err := os.ReadFile("test_data/oidc_client.json")
 	if err != nil {
 		log.Fatalf("Failed to read test data: %v", err)
@@ -318,6 +292,62 @@ func (db *DB) SeedTestData() {
 	if db.Find(&dbUsers).Error != nil {
 		log.Fatalf("Failed to get users from db")
 		return
+	}
+
+	openContent := []models.OpenContentProvider{{Name: models.Kiwix, BaseUrl: models.KiwixLibraryUrl, CurrentlyEnabled: true, Thumbnail: models.KiwixThumbnailURL, Description: models.Kiwix},
+		{Name: models.Youtube, BaseUrl: models.YoutubeApi, CurrentlyEnabled: true, Thumbnail: models.YoutubeThumbnail, Description: models.YoutubeDescription}}
+	for idx := range openContent {
+		if err := db.Create(&openContent[idx]).Error; err != nil {
+			log.Fatalf("Failed to create kiwix open content provider: %v", err)
+		}
+	}
+	//DONE
+	libraries, err := os.ReadFile("test_data/libraries.json")
+	if err != nil {
+		log.Fatalf("Failed to read test data: %v", err)
+	}
+	var library []models.Library
+	if err := json.Unmarshal(libraries, &library); err != nil {
+		log.Fatalf("Failed to unmarshal test data: %v", err)
+	}
+	var kwixID uint //get id for kwix
+	if db.Model(&models.OpenContentProvider{}).Select("id").Where("name = ?", models.Kiwix).First(&kwixID).RowsAffected == 0 {
+		log.Fatalf("Failed to get %s open_content_provider: %v", models.Kiwix, err)
+	}
+	openContentUrlPrefixes := []string{"alpha-bravo", "sunny-breeze", "stormy-night", "crimson-sky", "electric-wave", "golden-hour", "starry-dream", "lunar-echo", "cosmic-dust", "silent-whisper", "ocean-tide", "shadow-flame", "emerald-haze", "velvet-sun", "fire-bolt", "thunder-cloud", "frozen-peak", "radiant-gem", "mystic-vortex", "crystal-shard", "obsidian-moon", "solar-wind", "arctic-light", "nebula-glow", "desert-spark", "forest-blaze", "phantom-frost", "twilight-glimmer", "vivid-flare", "prism-halo", "aurora-wave", "blazing-star", "icy-horizon", "jagged-dream", "vivid-shadow", "iron-bloom", "canyon-sky", "frost-spark"}
+	var url models.OpenContentUrl
+	var activity models.OpenContentActivity
+	for i := range library {
+		user := dbUsers[uint(rand.Intn(len(dbUsers)))]
+		library[i].OpenContentProviderID = kwixID
+		if err := db.Create(&library[i]).Error; err != nil {
+			log.Fatalf("Failed to create library: %v", err)
+		}
+		for j, k := 0, len(openContentUrlPrefixes); j < k; j++ {
+			url = models.OpenContentUrl{
+				ContentURL: "/api/proxy/libraries/" + strconv.FormatUint(uint64(library[i].ID), 10) + "/content/" + openContentUrlPrefixes[j],
+			}
+
+			if err := db.Create(&url).Error; err != nil {
+				log.Fatalf("Failed to create library: %v", err)
+			}
+
+			for j, k := 0, rand.Intn(50); j < k; j++ {
+
+				activity = models.OpenContentActivity{
+					OpenContentProviderID: kwixID,
+					FacilityID:            user.FacilityID,
+					UserID:                user.ID,
+					ContentID:             library[i].ID,
+					OpenContentUrlID:      url.ID,
+					RequestTS:             time.Now(),
+				}
+				if err := db.Create(&activity).Error; err != nil {
+					log.Fatalf("Failed to create open content activity: %v", err)
+				}
+				time.Sleep(time.Millisecond * 1)
+			}
+		}
 	}
 	events := []models.ProgramSectionEvent{}
 	if err := db.Find(&events).Error; err != nil {

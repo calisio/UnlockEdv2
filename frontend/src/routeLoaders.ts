@@ -15,7 +15,8 @@ export const getOpenContentDashboardData: LoaderFunction = async () => {
         await Promise.all([
             API.get(`left-menu`),
             API.get(`open-content/activity/${user?.id}`),
-            API.get(`open-content/activity`)
+            API.get(`open-content/activity`),
+            API.get(`open-content/favorites`)
         ]);
 
     const resourcesData = resourcesResp.success

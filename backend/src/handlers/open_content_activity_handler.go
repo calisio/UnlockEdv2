@@ -6,11 +6,11 @@ import (
 )
 
 func (srv *Server) registerOpenContentActivityRoutes() {
-	srv.Mux.Handle("GET /api/open-content/activity", srv.applyMiddleware(srv.handleGetTopFacilityOpenContentActivity))
-	srv.Mux.Handle("GET /api/open-content/activity/{id}", srv.applyMiddleware(srv.handleGetTopUserOpenContentActivity))
+	srv.Mux.Handle("GET /api/open-content/activity", srv.applyMiddleware(srv.handleGetTopFacilityOpenContent))
+	srv.Mux.Handle("GET /api/open-content/activity/{id}", srv.applyMiddleware(srv.handleGetTopUserOpenContent))
 }
 
-func (srv *Server) handleGetTopFacilityOpenContentActivity(w http.ResponseWriter, r *http.Request, log sLog) error {
+func (srv *Server) handleGetTopFacilityOpenContent(w http.ResponseWriter, r *http.Request, log sLog) error {
 	facilityId := srv.getFacilityID(r)
 	topOpenContent, err := srv.Db.GetTopFacilityOpenContent(int(facilityId))
 	if err != nil {
@@ -19,7 +19,7 @@ func (srv *Server) handleGetTopFacilityOpenContentActivity(w http.ResponseWriter
 	return writeJsonResponse(w, http.StatusOK, topOpenContent)
 }
 
-func (srv *Server) handleGetTopUserOpenContentActivity(w http.ResponseWriter, r *http.Request, log sLog) error {
+func (srv *Server) handleGetTopUserOpenContent(w http.ResponseWriter, r *http.Request, log sLog) error {
 	id, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
 		return newInvalidIdServiceError(err, "user ID")
