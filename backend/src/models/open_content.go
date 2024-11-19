@@ -80,6 +80,7 @@ type OpenContentItem struct {
 	ThumbnailUrl          string `json:"thumbnail_url"`
 	OpenContentProviderId uint   `json:"open_content_provider_id"`
 	ContentId             uint   `json:"content_id"`
+	Type                  string `json:"type"`
 }
 
 const (

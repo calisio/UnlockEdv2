@@ -1,5 +1,6 @@
 import { json, LoaderFunction } from 'react-router-dom';
 import {
+    CombinedFavorite,
     Facility,
     OpenContentItem,
     OpenContentProvider,
@@ -11,7 +12,7 @@ import { fetchUser } from './useAuth';
 
 export const getOpenContentDashboardData: LoaderFunction = async () => {
     const user = await fetchUser();
-    const [resourcesResp, userContentResp, facilityContentResp] =
+    const [resourcesResp, userContentResp, facilityContentResp, favoritesResp] =
         await Promise.all([
             API.get(`left-menu`),
             API.get(`open-content/activity/${user?.id}`),
@@ -28,11 +29,15 @@ export const getOpenContentDashboardData: LoaderFunction = async () => {
     const topFacilityOpenContent = facilityContentResp.success
         ? (facilityContentResp.data as OpenContentItem[])
         : [];
+    const favoriteOpenContent = favoritesResp.success
+        ? (favoritesResp.data as CombinedFavorite[])
+        : [];
 
     return json({
         resources: resourcesData,
         topUserContent: topUserOpenContent,
-        topFacilityContent: topFacilityOpenContent
+        topFacilityContent: topFacilityOpenContent,
+        favorites: favoriteOpenContent
     });
 };
 

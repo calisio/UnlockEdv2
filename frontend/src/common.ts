@@ -780,4 +780,5 @@ export interface OpenContentItem {
     thumbnail_url: string | null;
     open_content_provider_id: number;
     content_id: number;
+    type: string;
 }
