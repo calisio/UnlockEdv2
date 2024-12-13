@@ -3,7 +3,7 @@ import VisibleHiddenToggle from './VisibleHiddenToggle';
 import { Library, ServerResponseMany, ToastState, UserRole } from '@/common';
 import API from '@/api/api';
 import { KeyedMutator } from 'swr';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useToast } from '@/Context/ToastCtx';
 import { AdminRoles } from '@/useAuth';
 import ULIComponent from '@/Components/ULIComponent';
@@ -19,13 +19,14 @@ export default function LibraryCard({
     onFavoriteToggle
 }: {
     library: Library;
-    mutate?: KeyedMutator<ServerResponseMany<Library>>;
+    mutate?: KeyedMutator<ServerResponseMany<Library>> | (() => void);
     role: UserRole;
     onFavoriteToggle?: (libraryId: number, isFavorited: boolean) => void;
 }) {
     const { toaster } = useToast();
     const [visible, setVisible] = useState<boolean>(library.visibility_status);
     const navigate = useNavigate();
+    const route = useLocation();
 
     function changeVisibility(visibilityStatus: boolean) {
         if (visibilityStatus == !visible) {
@@ -89,25 +90,27 @@ export default function LibraryCard({
                 className="absolute right-2 top-2 z-100 favorite-toggle"
                 onClick={(e) => void toggleLibraryFavorite(e)}
             >
-                {/* don't display the favorite toggle when admin is viewing in student view*/}
-                <ULIComponent
-                    tooltipClassName="absolute right-2 top-2 z-100"
-                    iconClassName={`w-6 h-6 ${library.favorites.length > 0 && 'text-primary-yellow'}`}
-                    icon={
-                        AdminRoles.includes(role)
-                            ? library.favorites.length > 0
-                                ? FlagIcon
-                                : FlagIconOutline
-                            : library.favorites.length > 0
-                              ? StarIcon
-                              : StarIconOutline
-                    }
-                    dataTip={
-                        AdminRoles.includes(role)
-                            ? 'Feature Library'
-                            : 'Favorite Library'
-                    }
-                />
+                {/* don't display the icon if on admin dashboard component*/}
+                {!route.pathname.includes('knowledge-insights') && (
+                    <ULIComponent
+                        tooltipClassName="absolute right-2 top-2 z-100"
+                        iconClassName={`w-6 h-6 ${library.favorites.length > 0 && 'text-primary-yellow'}`}
+                        icon={
+                            AdminRoles.includes(role)
+                                ? library.favorites.length > 0
+                                    ? FlagIcon
+                                    : FlagIconOutline
+                                : library.favorites.length > 0
+                                  ? StarIcon
+                                  : StarIconOutline
+                        }
+                        dataTip={
+                            AdminRoles.includes(role)
+                                ? 'Feature Library'
+                                : 'Favorite Library'
+                        }
+                    />
+                )}
             </div>
 
             <div className="p-4 space-y-2">
