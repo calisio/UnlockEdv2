@@ -1,8 +1,7 @@
 import { useState, MouseEvent } from 'react';
 import VisibleHiddenToggle from './VisibleHiddenToggle';
-import { Library, ServerResponseMany, ToastState, UserRole } from '@/common';
+import { Library, ToastState, UserRole } from '@/common';
 import API from '@/api/api';
-import { KeyedMutator } from 'swr';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useToast } from '@/Context/ToastCtx';
 import { AdminRoles } from '@/useAuth';
@@ -15,13 +14,11 @@ import { FlagIcon as FlagIconOutline } from '@heroicons/react/24/outline';
 export default function LibraryCard({
     library,
     mutate,
-    role,
-    onFavoriteToggle
+    role
 }: {
     library: Library;
-    mutate?: KeyedMutator<ServerResponseMany<Library>> | (() => void);
+    mutate?: () => void;
     role: UserRole;
-    onFavoriteToggle?: (libraryId: number, isFavorited: boolean) => void;
 }) {
     const { toaster } = useToast();
     const [visible, setVisible] = useState<boolean>(library.visibility_status);
@@ -42,7 +39,7 @@ export default function LibraryCard({
             {}
         );
         if (resp.success) {
-            await mutate();
+            mutate();
         }
         toaster(
             resp.message,
@@ -57,11 +54,6 @@ export default function LibraryCard({
             `libraries/${library.id}/favorite`,
             {}
         );
-        if (resp.success) {
-            const isFavorited = library.favorites.length === 0;
-            onFavoriteToggle?.(library.id, isFavorited);
-            await mutate();
-        }
         toaster(
             resp.message,
             resp.success ? ToastState.success : ToastState.error
@@ -69,13 +61,11 @@ export default function LibraryCard({
         void mutate();
     }
 
-    const handleCardClick = (e: MouseEvent<HTMLDivElement>) => {
-        const target = e.target as HTMLElement;
-        if (target.closest('.favorite-toggle')) return;
-        navigate(`/viewer/libraries/${library.id}`);
-    };
     return (
-        <div className="card cursor-pointer" onClick={handleCardClick}>
+        <div
+            className="card cursor-pointer"
+            onClick={() => navigate(`/viewer/libraries/${library.id}`)}
+        >
             <div className="flex p-4 gap-2 border-b-2">
                 <figure className="w-[48px] h-[48px] bg-cover">
                     <img
@@ -87,7 +77,7 @@ export default function LibraryCard({
             </div>
 
             <div
-                className="absolute right-2 top-2 z-100 favorite-toggle"
+                className="absolute right-2 top-2 z-100"
                 onClick={(e) => void toggleLibraryFavorite(e)}
             >
                 {/* don't display the icon if on admin dashboard component*/}
