@@ -42,7 +42,8 @@ import {
     getFacilities,
     getLibraryLayoutData,
     getStudentLayer2Data,
-    getStudentLevel1Data
+    getStudentLevel1Data,
+    getProviderPlatforms
 } from './routeLoaders.ts';
 
 import FacilityManagement from '@/Pages/FacilityManagement.tsx';
@@ -309,6 +310,7 @@ const router = createBrowserRouter([
                     },
                     {
                         path: 'residents',
+                        loader: getProviderPlatforms,
                         element: <StudentManagement />,
                         errorElement: <Error />,
                         handle: {
@@ -317,6 +319,7 @@ const router = createBrowserRouter([
                     },
                     {
                         path: 'admins',
+                        loader: getProviderPlatforms,
                         element: <AdminManagement />,
                         errorElement: <Error />,
                         handle: {

@@ -1,0 +1,32 @@
+import { forwardRef } from 'react';
+import { Facility, ToastState } from '@/common';
+import { closeModal, CRUDModalProps, facilityInputs, FormModal } from '.';
+import { FieldValues, SubmitHandler } from 'react-hook-form';
+import API from '@/api/api';
+import { useToast } from '@/Context/ToastCtx';
+
+export const EditFacilityModal = forwardRef(function (
+    { mutate, target }: CRUDModalProps<Facility>,
+    editFacilityModal: React.ForwardedRef<HTMLDialogElement>
+) {
+    const { toaster } = useToast();
+    const updateFacility: SubmitHandler<FieldValues> = async (data) => {
+        const response = await API.patch(`facilities/${target?.id}`, data);
+        if (!response.success) {
+            toaster('Failed to update facility', ToastState.error);
+            return new Error();
+        }
+        toaster('Facility updated successfully', ToastState.success);
+        closeModal(editFacilityModal);
+        await mutate();
+    };
+    return (
+        <FormModal
+            title="Edit Facility"
+            inputs={facilityInputs}
+            defaultValues={target ? target : undefined}
+            onSubmit={updateFacility}
+            ref={editFacilityModal}
+        />
+    );
+});

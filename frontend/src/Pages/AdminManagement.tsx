@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { ForwardedRef, useRef, useState } from 'react';
 import useSWR from 'swr';
 import {
     ArrowPathRoundedSquareIcon,
@@ -7,19 +7,7 @@ import {
     PencilSquareIcon,
     PlusCircleIcon
 } from '@heroicons/react/24/outline';
-import {
-    ModalType,
-    ServerResponseMany,
-    ToastState,
-    User,
-    UserRole
-} from '@/common';
-import AddUserForm from '@/Components/forms/AddUserForm';
-import EditUserForm from '@/Components/forms/EditUserForm';
-import Modal from '@/Components/Modal';
-import DeleteForm from '@/Components/DeleteForm';
-import ResetPasswordForm from '@/Components/forms/ResetPasswordForm';
-import ShowTempPasswordForm from '@/Components/forms/ShowTempPasswordForm';
+import { ServerResponseMany, ToastState, User, UserRole } from '@/common';
 import DropdownControl from '@/Components/inputs/DropdownControl';
 import SearchBar from '@/Components/inputs/SearchBar';
 import { useDebounceValue } from 'usehooks-ts';
@@ -28,15 +16,24 @@ import { AxiosError } from 'axios';
 import API from '@/api/api';
 import ULIComponent from '@/Components/ULIComponent.tsx';
 import { useToast } from '@/Context/ToastCtx';
+import {
+    AddUserModal,
+    closeModal,
+    EditUserModal,
+    showModal,
+    TextModalType,
+    TextOnlyModal
+} from '@/Components/modals';
 
 export default function AdminManagement() {
     const addUserModal = useRef<HTMLDialogElement>(null);
     const editUserModal = useRef<HTMLDialogElement>(null);
     const resetUserPasswordModal = useRef<HTMLDialogElement>(null);
     const deleteUserModal = useRef<HTMLDialogElement>(null);
-    const [targetUser, setTargetUser] = useState<undefined | User>();
-    const [tempPassword, setTempPassword] = useState<string>('');
     const showUserPassword = useRef<HTMLDialogElement>(null);
+
+    const [targetUser, setTargetUser] = useState<User | null>(null);
+    const [tempPassword, setTempPassword] = useState<string>('');
     const [searchTerm, setSearchTerm] = useState('');
     const searchQuery = useDebounceValue(searchTerm, 300);
     const [perPage, setPerPage] = useState(10);
@@ -52,12 +49,6 @@ export default function AdminManagement() {
     const userData = data?.data as User[] | [];
     const meta = data?.meta;
 
-    function resetModal() {
-        setTimeout(() => {
-            setTargetUser(undefined);
-        }, 200);
-    }
-
     const deleteUser = async () => {
         if (targetUser?.role === UserRole.SystemAdmin) {
             toaster(
@@ -67,71 +58,39 @@ export default function AdminManagement() {
             return;
         }
         const response = await API.delete('users/' + targetUser?.id);
-        const toastType = response.success
-            ? ToastState.success
-            : ToastState.error;
-        const message = response.success
-            ? 'Administrator deleted successfully'
-            : 'Failed to delete administrator';
-        deleteUserModal.current?.close();
-        toaster(message, toastType);
-        resetModal();
-        await mutate();
-        return;
-    };
-
-    const onAddUserSuccess = (pswd = '', msg: string, type: ToastState) => {
-        toaster(msg, type);
-        setTempPassword(pswd);
-        addUserModal.current?.close();
-        showUserPassword.current?.showModal();
-        void mutate();
-    };
-
-    const handleEditUser = () => {
-        editUserModal.current?.close();
-        resetModal();
-        void mutate();
-    };
-
-    const handleDeleteUserCancel = () => {
-        deleteUserModal.current?.close();
-        resetModal();
-    };
-
-    const handleResetPasswordCancel = (msg: string, err: boolean) => {
-        const state = err ? ToastState.error : ToastState.success;
-        if (msg === '' && !err) {
-            resetUserPasswordModal.current?.close();
-            resetModal();
-            return;
+        if (!response.success) {
+            toaster('Failed to delete administrator', ToastState.error);
         }
-        toaster(msg, state);
-        resetModal();
+        toaster('Administrator deleted successfully', ToastState.success);
+        closeModal(deleteUserModal);
+        setTargetUser(null);
+        await mutate();
     };
 
-    const handleDisplayTempPassword = (psw: string) => {
-        setTempPassword(psw);
-        resetUserPasswordModal.current?.close();
-        showUserPassword.current?.showModal();
+    const onAddUserSuccess = (tempPassword: string) => {
+        setTempPassword(tempPassword);
+        closeModal(resetUserPasswordModal);
+        showModal(showUserPassword);
         toaster('Password Successfully Reset', ToastState.success);
-    };
-
-    const handleShowPasswordClose = () => {
-        showUserPassword.current?.close();
-        setTempPassword('');
-        resetModal();
     };
 
     const handleChange = (newSearch: string) => {
         setSearchTerm(newSearch);
         setPageQuery(1);
     };
+
     const handleSetPerPage = (val: number) => {
         setPerPage(val);
         setPageQuery(1);
         void mutate();
     };
+
+    function handleCancelModal(ref: ForwardedRef<HTMLDialogElement>) {
+        closeModal(ref);
+        setTargetUser(null);
+        setTempPassword('');
+    }
+
     const getUserIconData = {
         'data-tip': (user: User) => {
             return user.role === UserRole.SystemAdmin
@@ -318,72 +277,43 @@ export default function AdminManagement() {
                     )}
                 </div>
             </div>
-            <Modal
+            <AddUserModal
+                mutate={mutate}
+                onSuccess={onAddUserSuccess}
+                userRole={UserRole.Admin}
                 ref={addUserModal}
-                type={ModalType.Add}
-                item="Admin"
-                form={
-                    <AddUserForm
-                        onSuccess={onAddUserSuccess}
-                        userRole={UserRole.Admin}
-                    />
-                }
             />
-            <Modal
+            <EditUserModal
+                mutate={mutate}
+                target={targetUser ?? undefined}
                 ref={editUserModal}
-                type={ModalType.Edit}
-                item="Admin"
-                form={
-                    targetUser ? (
-                        <EditUserForm
-                            onSuccess={handleEditUser}
-                            user={targetUser}
-                        />
-                    ) : (
-                        <div>No user defined!</div>
-                    )
-                }
             />
-            <Modal
+            <TextOnlyModal
                 ref={deleteUserModal}
-                type={ModalType.Confirm}
-                item="Delete Admin"
-                form={
-                    <DeleteForm
-                        item="User"
-                        onCancel={handleDeleteUserCancel}
-                        onSuccess={() => void deleteUser()}
-                    />
+                type={TextModalType.Delete}
+                title={'Delete Admin'}
+                text={
+                    'Are you sure you would like to delete this admin? This action cannot be undone.'
                 }
+                onSubmit={() => deleteUser}
+                onClose={() => handleCancelModal(deleteUserModal)}
             />
-            <Modal
-                ref={resetUserPasswordModal}
-                type={ModalType.Confirm}
-                item="Reset Password"
-                form={
-                    <ResetPasswordForm
-                        user={targetUser}
-                        onCancel={handleResetPasswordCancel}
-                        onSuccess={handleDisplayTempPassword}
-                    />
-                }
-            />
-            <Modal
+            <TextOnlyModal
                 ref={showUserPassword}
-                type={ModalType.Show}
-                item={'New Password'}
-                form={
-                    <ShowTempPasswordForm
-                        tempPassword={tempPassword}
-                        userName={
-                            targetUser
-                                ? `${targetUser.name_first} ${targetUser.name_last}`
-                                : undefined
-                        }
-                        onClose={handleShowPasswordClose}
-                    />
-                }
-            />
+                type={TextModalType.Information}
+                title={'New Password'}
+                text={`Copy this password now. If you lose it, you'll need to
+                        regenerate it to get a new one.`}
+                onSubmit={() => {}} //eslint-disable-line
+                onClose={() => handleCancelModal(showUserPassword)}
+            >
+                <div className="stats shadow">
+                    <div className="stat">
+                        <div className="stat-title">Temporary Password</div>
+                        <div className="stat-value">{tempPassword}</div>
+                    </div>
+                </div>
+            </TextOnlyModal>
         </div>
     );
 }
