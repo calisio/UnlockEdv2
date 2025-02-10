@@ -7,7 +7,8 @@ import {
     Library,
     UserCoursesInfo,
     ActivityMapData,
-    UserRole, 
+    UserRole,
+    ProviderPlatform, 
 } from './common';
 import API from './api/api';
 import { fetchUser } from './useAuth';
@@ -107,3 +108,13 @@ export const getLibraryOptions: LoaderFunction = async ({ request }: { request: 
         libraryOptions: libraryOptions
     });
 };
+
+export const getProviderPlatforms: LoaderFunction = async () => {
+    const response: ServerResponse<ProviderPlatform> = await API.get<ProviderPlatform>(
+        `provider-platforms?only=oidc_enabled`
+    );
+    if (response.success) {
+        return json( {providerPlatforms: response.data as ProviderPlatform[]})
+    }
+    return json<null>(null);
+}

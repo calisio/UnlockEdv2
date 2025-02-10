@@ -1,4 +1,4 @@
-import { FieldErrors, UseFormRegister } from 'react-hook-form';
+import { FieldErrors, UseFormRegister, Validate } from 'react-hook-form';
 
 interface TextAreaProps {
     label: string;
@@ -7,6 +7,9 @@ interface TextAreaProps {
     length: number | undefined;
     errors: FieldErrors<any>; // eslint-disable-line
     register: UseFormRegister<any>; //eslint-disable-line
+    validate?:
+        | Validate<any, any> // eslint-disable-line @typescript-eslint/no-explicit-any
+        | Record<string, Validate<any, any>>; // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 
 export function TextAreaInput({
@@ -15,7 +18,8 @@ export function TextAreaInput({
     required,
     length,
     errors,
-    register
+    register,
+    validate
 }: TextAreaProps) {
     const options = {
         required: {
@@ -27,7 +31,8 @@ export function TextAreaInput({
                 value: length,
                 message: `${label} should be ${length} characters or less`
             }
-        })
+        }),
+        ...(validate && validate)
     };
     return (
         <label className="form-control">

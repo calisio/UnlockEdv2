@@ -1,4 +1,5 @@
-import { FieldErrors, UseFormRegister } from 'react-hook-form';
+import { FieldErrors, UseFormRegister, Validate } from 'react-hook-form';
+import { Pattern } from '../modals';
 
 interface TextProps {
     label: string;
@@ -10,10 +11,10 @@ interface TextProps {
     password?: boolean;
     isFocused?: boolean;
     autoComplete?: string;
-    pattern?: {
-        value: RegExp;
-        message: string;
-    };
+    pattern?: Pattern;
+    validate?:
+        | Validate<any, any> // eslint-disable-line @typescript-eslint/no-explicit-any
+        | Record<string, Validate<any, any>>; // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 export function TextInput({
     label,
@@ -25,7 +26,8 @@ export function TextInput({
     password = false,
     isFocused = false,
     autoComplete = 'on',
-    pattern
+    pattern,
+    validate
 }: TextProps) {
     const options = {
         required: {
@@ -38,7 +40,8 @@ export function TextInput({
                 message: `${label} should be ${length} characters or less`
             }
         }),
-        ...(pattern && { pattern })
+        ...(pattern && { pattern }),
+        ...(validate && { validate })
     };
     return (
         <label className="form-control">

@@ -1,5 +1,6 @@
 import {
     DefaultValues,
+    FieldError,
     FieldValues,
     SubmitHandler,
     useForm
@@ -7,42 +8,36 @@ import {
 import {
     CloseX,
     DropdownInput,
+    MultiSelectDropdownInput,
     SubmitButton,
     TextAreaInput,
     TextInput
 } from './inputs';
 import { forwardRef, useEffect } from 'react';
-
-export enum FormInputTypes {
-    Text,
-    Dropdown,
-    TextArea
-}
-
-export interface Input {
-    type: FormInputTypes;
-    label: string;
-    interfaceRef: string;
-    required: boolean;
-    enumType?: Record<string, string>;
-    length?: number;
-}
+import { FormInputTypes, Input, InputWithOptions } from './modals';
 
 interface ModalProps<T extends FieldValues> {
     title: string;
     inputs: Input[];
     defaultValues?: DefaultValues<T>;
+    error?: FormError;
     onSubmit: SubmitHandler<T>;
 }
 
+export interface FormError {
+    name: string;
+    error: FieldError;
+}
+
 export const NewModal = forwardRef(function NewModal<T extends FieldValues>(
-    { title, inputs, onSubmit, defaultValues }: ModalProps<T>,
+    { title, inputs, onSubmit, defaultValues, error }: ModalProps<T>,
     ref: React.ForwardedRef<HTMLDialogElement>
 ) {
     const {
         register,
         reset,
         handleSubmit,
+        setError,
         formState: { errors }
     } = useForm<T>({ defaultValues: defaultValues });
 
@@ -50,11 +45,17 @@ export const NewModal = forwardRef(function NewModal<T extends FieldValues>(
         reset(defaultValues);
     }, [defaultValues, reset]);
 
+    useEffect(() => {
+        if (error) {
+            setError(error.name as 'root' | `root.${string}`, error.error);
+        }
+    }, [error, setError]);
+
     const onSubmitHandler: SubmitHandler<T> = async (data) => {
         await onSubmit(data);
         reset();
     };
-
+    console.log(inputs);
     return (
         <dialog ref={ref} className="modal relative">
             <div className="modal-box">
@@ -68,49 +69,70 @@ export const NewModal = forwardRef(function NewModal<T extends FieldValues>(
                             void handleSubmit(onSubmitHandler)(e);
                         }}
                     >
-                        {inputs.map((input: Input, index) => {
-                            if (input.type == FormInputTypes.Text) {
-                                return (
-                                    <TextInput
-                                        key={index}
-                                        label={input.label}
-                                        interfaceRef={input.interfaceRef}
-                                        required={input.required}
-                                        length={input.length}
-                                        errors={errors}
-                                        register={register}
-                                    />
-                                );
+                        {inputs.map(
+                            (input: Input | InputWithOptions<T>, index) => {
+                                if (input.type === FormInputTypes.Text) {
+                                    return (
+                                        <TextInput
+                                            key={index}
+                                            label={input.label}
+                                            interfaceRef={input.interfaceRef}
+                                            required={input.required}
+                                            length={input.length}
+                                            errors={errors}
+                                            register={register}
+                                            validate={input.validate}
+                                        />
+                                    );
+                                }
+                                if (input.type === FormInputTypes.Dropdown) {
+                                    if (!input.enumType) return;
+                                    return (
+                                        <DropdownInput
+                                            key={index}
+                                            label={input.label}
+                                            interfaceRef={input.interfaceRef}
+                                            required={input.required}
+                                            errors={errors}
+                                            register={register}
+                                            enumType={input.enumType}
+                                        />
+                                    );
+                                }
+                                if (input.type === FormInputTypes.TextArea) {
+                                    return (
+                                        <TextAreaInput
+                                            key={index}
+                                            label={input.label}
+                                            interfaceRef={input.interfaceRef}
+                                            required={input.required}
+                                            length={input.length}
+                                            errors={errors}
+                                            register={register}
+                                            validate={input.validate}
+                                        />
+                                    );
+                                }
+                                if (
+                                    input.type ===
+                                        FormInputTypes.MultiSelectDropdown &&
+                                    'options' in input
+                                ) {
+                                    return (
+                                        <MultiSelectDropdownInput
+                                            key={index}
+                                            label={input.label}
+                                            options={input.options ?? []}
+                                            interfaceRef={'platforms'}
+                                            required={false}
+                                            errors={errors}
+                                            register={register}
+                                        />
+                                    );
+                                }
+                                return;
                             }
-                            if (input.type == FormInputTypes.Dropdown) {
-                                if (!input.enumType) return;
-                                return (
-                                    <DropdownInput
-                                        key={index}
-                                        label={input.label}
-                                        interfaceRef={input.interfaceRef}
-                                        required={input.required}
-                                        errors={errors}
-                                        register={register}
-                                        enumType={input.enumType}
-                                    />
-                                );
-                            }
-                            if (input.type == FormInputTypes.TextArea) {
-                                return (
-                                    <TextAreaInput
-                                        key={index}
-                                        label={input.label}
-                                        interfaceRef={input.interfaceRef}
-                                        required={input.required}
-                                        length={input.length}
-                                        errors={errors}
-                                        register={register}
-                                    />
-                                );
-                            }
-                            return;
-                        })}
+                        )}
                         <SubmitButton />
                     </form>
                 </div>

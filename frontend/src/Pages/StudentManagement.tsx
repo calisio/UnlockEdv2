@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import useSWR from 'swr';
+import useSWR, { MutatorCallback, MutatorOptions } from 'swr';
 
 import {
     ArrowPathRoundedSquareIcon,
@@ -27,7 +27,7 @@ import API from '@/api/api';
 import ULIComponent from '@/Components/ULIComponent.tsx';
 import { AxiosError } from 'axios';
 import { useToast } from '@/Context/ToastCtx';
-import EditUserForm from '@/Components/forms/EditUserForm';
+import { AddUserModal, EditUserModal } from '@/Components/modals';
 
 export default function StudentManagement() {
     const addUserModal = useRef<HTMLDialogElement>(null);
@@ -79,17 +79,8 @@ export default function StudentManagement() {
         return;
     };
 
-    const onAddUserSuccess = (pswd = '', msg: string, type: ToastState) => {
-        toaster(msg, type);
+    const onAddUserSuccess = (pswd = '') => {
         setTempPassword(pswd);
-        addUserModal.current?.close();
-        showUserPassword.current?.showModal();
-        void mutate();
-    };
-
-    const hanldleEditUser = () => {
-        editUserModal.current?.close();
-        resetModal();
         void mutate();
     };
 
@@ -279,7 +270,7 @@ export default function StudentManagement() {
                     )}
                 </div>
             </div>
-            <Modal
+            {/* <Modal
                 ref={addUserModal}
                 type={ModalType.Add}
                 item="Student"
@@ -289,21 +280,16 @@ export default function StudentManagement() {
                         userRole={UserRole.Student}
                     />
                 }
+            /> */}
+            <AddUserModal
+                mutate={mutate}
+                onSuccess={onAddUserSuccess}
+                ref={addUserModal}
             />
-            <Modal
+            <EditUserModal
+                mutate={mutate}
                 ref={editUserModal}
-                type={ModalType.Edit}
-                item="Student"
-                form={
-                    targetUser ? (
-                        <EditUserForm
-                            onSuccess={hanldleEditUser}
-                            user={targetUser}
-                        />
-                    ) : (
-                        <div>No user defined!</div>
-                    )
-                }
+                target={targetUser}
             />
             <Modal
                 ref={deleteUserModal}

@@ -1,6 +1,14 @@
-import { ProviderPlatformState, ProviderPlatformType, ServerResponseMany, ServerResponseOne, Timezones } from '@/common';
-import { FormInputTypes, Input } from '../Modaltest';
+import {
+    ProviderPlatform,
+    ProviderPlatformState,
+    ProviderPlatformType,
+    ServerResponseMany,
+    ServerResponseOne,
+    Timezones
+} from '@/common';
 import { KeyedMutator } from 'swr';
+import { Validate } from 'react-hook-form';
+import React from 'react';
 
 export enum CRUDActions {
     Add,
@@ -8,8 +16,51 @@ export enum CRUDActions {
     Delete
 }
 export interface CRUDModalProps<T> {
-    mutate: KeyedMutator<ServerResponseMany<T>> | KeyedMutator<ServerResponseOne<T>>;
+    mutate:
+        | KeyedMutator<ServerResponseMany<T>>
+        | KeyedMutator<ServerResponseOne<T>>;
     target?: T;
+}
+
+export enum FormInputTypes {
+    Text,
+    Dropdown,
+    TextArea,
+    MultiSelectDropdown
+}
+
+export interface Input {
+    type: FormInputTypes;
+    label: string;
+    interfaceRef: string;
+    required: boolean;
+    enumType?: Record<string, string>;
+    length?: number;
+    pattern?: Pattern;
+    validate?: 
+    | Validate<any, any> // eslint-disable-line
+    | Record<string, Validate<any, any>> // eslint-disable-line
+    uniqueComponent?: JSX.Element
+}
+
+export interface InputWithOptions<T> extends Input{
+    options?: T[]
+}
+
+export interface Pattern {
+    value: RegExp;
+    message: string;
+}
+
+export function closeModal(ref:React.ForwardedRef<HTMLDialogElement>){
+    if (
+        ref &&
+        'current' in ref &&
+        ref.current
+    ) {
+        ref.current.close();
+    }
+    return null;
 }
 
 // Facility Exports
@@ -73,7 +124,7 @@ export const providerInputs: Input[] = [
         required: true
     }
 ];
-export {AddProviderModal} from "./AddProviderModal"
+export { AddProviderModal } from './AddProviderModal';
 
 // Helpful Links Exports
 export const linkInputs: Input[] = [
@@ -98,5 +149,46 @@ export const linkInputs: Input[] = [
         length: 255
     }
 ];
-export {AddHelpfulLinkModal} from "./AddHelpfulLinkModal"
-export {EditHelpfulLinkModal} from "./EditHelpfulLinkModal"
+export { AddHelpfulLinkModal } from './AddHelpfulLinkModal';
+export { EditHelpfulLinkModal } from './EditHelpfulLinkModal';
+
+// User Exports
+export const checkOnlyLettersAndSpaces: Validate<string, string | boolean> = (input: string) => {
+    if (!/^[A-Za-z\s]+$/.test(input)) {
+        return 'Input should only contain letters and spaces';
+    }
+    return true;
+};
+export const checkOnlyLettersAndNumbers: Validate<string, string | boolean> = (input: string) => {
+    if (!/^[A-Za-z0-9]+$/.test(input)) {
+        return 'Input should only contain letters and numbers';
+    }
+    return true;
+};
+export const userInputs: InputWithOptions<ProviderPlatform>[] = [
+    {
+        type: FormInputTypes.Text,
+        label: 'First Name',
+        interfaceRef: 'name_first',
+        required: true,
+        length: 25,
+        validate: checkOnlyLettersAndSpaces
+    },
+    {
+        type: FormInputTypes.Text,
+        label: 'Last Name',
+        interfaceRef: "name_last",
+        required: true,
+        length:25,
+        validate: checkOnlyLettersAndSpaces
+    }, 
+    {
+        type: FormInputTypes.Text,
+        label: "Email (optional)",
+        interfaceRef: "email",
+        required: false,
+        length: 50
+    }
+]
+export {AddUserModal} from './AddUserModal'
+export {EditUserModal} from './EditUserModal'

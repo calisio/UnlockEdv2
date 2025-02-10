@@ -15,7 +15,6 @@ import {
     UserRole
 } from '@/common';
 import AddUserForm from '@/Components/forms/AddUserForm';
-import EditUserForm from '@/Components/forms/EditUserForm';
 import Modal from '@/Components/Modal';
 import DeleteForm from '@/Components/DeleteForm';
 import ResetPasswordForm from '@/Components/forms/ResetPasswordForm';
