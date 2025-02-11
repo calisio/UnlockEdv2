@@ -283,6 +283,7 @@ export default function StudentManagement() {
             <AddUserModal
                 mutate={mutate}
                 onSuccess={onAddUserSuccess}
+                userRole={UserRole.Student}
                 ref={addUserModal}
             />
             <EditUserModal

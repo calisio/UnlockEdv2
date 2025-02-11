@@ -1,18 +1,26 @@
 import { forwardRef, useState } from 'react';
-import { CRUDModalProps, FormInputTypes, userInputs } from '.';
+import { closeModal, CRUDModalProps, FormInputTypes, userInputs } from '.';
 import { useToast } from '@/Context/ToastCtx';
 import FormModal, { FormError } from '../FormModal';
 import { FieldValues, SubmitHandler } from 'react-hook-form';
-import { NewUserResponse, ProviderPlatform, ToastState, User } from '@/common';
+import {
+    NewUserResponse,
+    ProviderPlatform,
+    ToastState,
+    User,
+    UserRole
+} from '@/common';
 import API from '@/api/api';
 import { useLoaderData } from 'react-router-dom';
 
 export const AddUserModal = forwardRef(function (
     {
         mutate,
-        onSuccess
+        onSuccess,
+        userRole
     }: CRUDModalProps<User> & {
         onSuccess: (tempPassword: string) => void;
+        userRole: UserRole;
     },
     addUserModal: React.ForwardedRef<HTMLDialogElement>
 ) {
@@ -24,13 +32,22 @@ export const AddUserModal = forwardRef(function (
     const { toaster } = useToast();
     const [formError, setFormError] = useState<FormError>();
 
-    const addUser: SubmitHandler<FieldValues> = async (data) => {
+    const addUser: SubmitHandler<FieldValues> = async (
+        data: FieldValues & { platforms?: string[] }
+    ) => {
+        let platformsArray: number[];
+        if (!data.platforms) platformsArray = [];
+        else {
+            console.log(data.platforms);
+            platformsArray = data.platforms.map((platform) =>
+                parseInt(platform, 10)
+            );
+        }
+        data.role = userRole;
         const response = await API.post('users', {
             user: data,
-            // need a way to get the selected options from register
-            provider_platforms: data
+            provider_platforms: platformsArray
         });
-
         if (!response.success) {
             const msg = response.message.trim();
             switch (msg) {
@@ -42,12 +59,25 @@ export const AddUserModal = forwardRef(function (
                             message: 'Username already exists'
                         }
                     });
+                    break;
+                }
+                case 'alphanum': {
+                    setFormError({
+                        name: 'username',
+                        error: {
+                            type: 'custom',
+                            message:
+                                'Username must contain only letters and numbers'
+                        }
+                    });
+                    break;
                 }
             }
             toaster('Failed to create user', ToastState.error);
             return;
         }
         onSuccess((response.data as NewUserResponse).temp_password);
+        closeModal(addUserModal);
         toaster(
             `User created successfully with temporary password`,
             ToastState.success
@@ -55,9 +85,6 @@ export const AddUserModal = forwardRef(function (
         await mutate();
     };
 
-    // const registerRole = () => {
-    //     return <input type="hidden" {...register('role')} />
-    // }
     return (
         <FormModal
             title={'Add User'}

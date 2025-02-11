@@ -26,7 +26,7 @@ export enum FormInputTypes {
     Text,
     Dropdown,
     TextArea,
-    MultiSelectDropdown
+    MultiSelectDropdown,
 }
 
 export interface Input {
@@ -181,6 +181,18 @@ export const userInputs: InputWithOptions<ProviderPlatform>[] = [
         required: true,
         length: 25,
         validate: checkOnlyLettersAndSpaces
+    },
+    {
+        type: FormInputTypes.Text,
+        label: "Username",
+        interfaceRef: 'username',
+        required: true,
+        length:50,
+        pattern:{
+            value: /^[A-Za-z0-9]+$/,
+            message:
+                'Username can only contain letters and numbers without spaces'
+        }
     },
     {
         type: FormInputTypes.Text,
