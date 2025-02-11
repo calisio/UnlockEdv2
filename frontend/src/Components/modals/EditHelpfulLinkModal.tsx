@@ -4,7 +4,7 @@ import { HelpfulLinkAndSort, ToastState } from '@/common';
 import { useToast } from '@/Context/ToastCtx';
 import { FieldValues, SubmitHandler } from 'react-hook-form';
 import API from '@/api/api';
-import NewModal from '../Modaltest';
+import FormModal from '../FormModal';
 
 export const EditHelpfulLinkModal = forwardRef(function (
     { mutate, target }: CRUDModalProps<HelpfulLinkAndSort>,
@@ -24,7 +24,7 @@ export const EditHelpfulLinkModal = forwardRef(function (
         await mutate();
     };
     return (
-        <NewModal
+        <FormModal
             title={'Edit Helpful Link'}
             inputs={linkInputs}
             defaultValues={target ? target : undefined}

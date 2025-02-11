@@ -1,6 +1,6 @@
 import { forwardRef } from 'react';
 import { Facility, ToastState } from '@/common';
-import NewModal from '../Modaltest';
+import FormModal from '../FormModal';
 import { closeModal, CRUDModalProps, facilityInputs } from '.';
 import { FieldValues, SubmitHandler } from 'react-hook-form';
 import API from '@/api/api';
@@ -22,7 +22,7 @@ export const EditFacilityModal = forwardRef(function (
         await mutate();
     };
     return (
-        <NewModal
+        <FormModal
             title="Edit Facility"
             inputs={facilityInputs}
             defaultValues={target ? target : undefined}

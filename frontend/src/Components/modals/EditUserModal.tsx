@@ -4,7 +4,7 @@ import { useToast } from '@/Context/ToastCtx';
 import { FieldValues, SubmitHandler } from 'react-hook-form';
 import { ToastState, User } from '@/common';
 import API from '@/api/api';
-import NewModal from '../Modaltest';
+import FormModal from '../FormModal';
 
 export const EditUserModal = forwardRef(function (
     { mutate, target }: CRUDModalProps<User>,
@@ -21,7 +21,7 @@ export const EditUserModal = forwardRef(function (
         await mutate();
     };
     return (
-        <NewModal
+        <FormModal
             title={'Edit User'}
             inputs={userInputs}
             defaultValues={target}

@@ -9,7 +9,7 @@ import {
 import { useToast } from '@/Context/ToastCtx';
 import { FieldValues, SubmitHandler } from 'react-hook-form';
 import API from '@/api/api';
-import NewModal from '../Modaltest';
+import FormModal from '../FormModal';
 
 export const AddProviderModal = forwardRef(function (
     { mutate }: CRUDModalProps<ProviderPlatform>,
@@ -33,7 +33,7 @@ export const AddProviderModal = forwardRef(function (
         await mutate();
     };
     return (
-        <NewModal
+        <FormModal
             title={'Add Provider'}
             inputs={providerInputs}
             onSubmit={addProvider}

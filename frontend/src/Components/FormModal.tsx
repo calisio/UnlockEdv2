@@ -29,7 +29,7 @@ export interface FormError {
     error: FieldError;
 }
 
-export const NewModal = forwardRef(function NewModal<T extends FieldValues>(
+export const FormModal = forwardRef(function FormModal<T extends FieldValues>(
     { title, inputs, onSubmit, defaultValues, error }: ModalProps<T>,
     ref: React.ForwardedRef<HTMLDialogElement>
 ) {
@@ -140,4 +140,4 @@ export const NewModal = forwardRef(function NewModal<T extends FieldValues>(
         </dialog>
     );
 });
-export default NewModal;
+export default FormModal;

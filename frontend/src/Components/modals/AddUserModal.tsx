@@ -1,7 +1,7 @@
 import { forwardRef, useState } from 'react';
 import { CRUDModalProps, FormInputTypes, userInputs } from '.';
 import { useToast } from '@/Context/ToastCtx';
-import NewModal, { FormError } from '../Modaltest';
+import FormModal, { FormError } from '../FormModal';
 import { FieldValues, SubmitHandler } from 'react-hook-form';
 import { NewUserResponse, ProviderPlatform, ToastState, User } from '@/common';
 import API from '@/api/api';
@@ -16,7 +16,7 @@ export const AddUserModal = forwardRef(function (
     },
     addUserModal: React.ForwardedRef<HTMLDialogElement>
 ) {
-    const [selectedProviders, setSelectedProviders] = useState<number[]>([]);
+    // const [selectedProviders, setSelectedProviders] = useState<number[]>([]);
 
     const { providerPlatforms } = useLoaderData() as {
         providerPlatforms: ProviderPlatform[];
@@ -27,7 +27,8 @@ export const AddUserModal = forwardRef(function (
     const addUser: SubmitHandler<FieldValues> = async (data) => {
         const response = await API.post('users', {
             user: data,
-            provider_platforms: selectedProviders
+            // need a way to get the selected options from register
+            provider_platforms: data
         });
 
         if (!response.success) {
@@ -58,7 +59,7 @@ export const AddUserModal = forwardRef(function (
     //     return <input type="hidden" {...register('role')} />
     // }
     return (
-        <NewModal
+        <FormModal
             title={'Add User'}
             inputs={[
                 ...userInputs,

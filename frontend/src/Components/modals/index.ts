@@ -37,14 +37,14 @@ export interface Input {
     enumType?: Record<string, string>;
     length?: number;
     pattern?: Pattern;
-    validate?: 
-    | Validate<any, any> // eslint-disable-line
-    | Record<string, Validate<any, any>> // eslint-disable-line
-    uniqueComponent?: JSX.Element
+    validate?:
+        | Validate<any, any> // eslint-disable-line
+        | Record<string, Validate<any, any>>; // eslint-disable-line
+    uniqueComponent?: JSX.Element;
 }
 
-export interface InputWithOptions<T> extends Input{
-    options?: T[]
+export interface InputWithOptions<T> extends Input {
+    options?: T[];
 }
 
 export interface Pattern {
@@ -52,12 +52,8 @@ export interface Pattern {
     message: string;
 }
 
-export function closeModal(ref:React.ForwardedRef<HTMLDialogElement>){
-    if (
-        ref &&
-        'current' in ref &&
-        ref.current
-    ) {
+export function closeModal(ref: React.ForwardedRef<HTMLDialogElement>) {
+    if (ref && 'current' in ref && ref.current) {
         ref.current.close();
     }
     return null;
@@ -153,13 +149,17 @@ export { AddHelpfulLinkModal } from './AddHelpfulLinkModal';
 export { EditHelpfulLinkModal } from './EditHelpfulLinkModal';
 
 // User Exports
-export const checkOnlyLettersAndSpaces: Validate<string, string | boolean> = (input: string) => {
+export const checkOnlyLettersAndSpaces: Validate<string, string | boolean> = (
+    input: string
+) => {
     if (!/^[A-Za-z\s]+$/.test(input)) {
         return 'Input should only contain letters and spaces';
     }
     return true;
 };
-export const checkOnlyLettersAndNumbers: Validate<string, string | boolean> = (input: string) => {
+export const checkOnlyLettersAndNumbers: Validate<string, string | boolean> = (
+    input: string
+) => {
     if (!/^[A-Za-z0-9]+$/.test(input)) {
         return 'Input should only contain letters and numbers';
     }
@@ -177,18 +177,18 @@ export const userInputs: InputWithOptions<ProviderPlatform>[] = [
     {
         type: FormInputTypes.Text,
         label: 'Last Name',
-        interfaceRef: "name_last",
+        interfaceRef: 'name_last',
         required: true,
-        length:25,
+        length: 25,
         validate: checkOnlyLettersAndSpaces
-    }, 
+    },
     {
         type: FormInputTypes.Text,
-        label: "Email (optional)",
-        interfaceRef: "email",
+        label: 'Email (optional)',
+        interfaceRef: 'email',
         required: false,
         length: 50
     }
-]
-export {AddUserModal} from './AddUserModal'
-export {EditUserModal} from './EditUserModal'
+];
+export { AddUserModal } from './AddUserModal';
+export { EditUserModal } from './EditUserModal';

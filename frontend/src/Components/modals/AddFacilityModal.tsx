@@ -1,5 +1,5 @@
 import { forwardRef } from 'react';
-import NewModal from '../Modaltest';
+import FormModal from '../FormModal';
 import { FieldValues, SubmitHandler } from 'react-hook-form';
 import API from '@/api/api';
 import { useToast } from '@/Context/ToastCtx';
@@ -22,7 +22,7 @@ export const AddFacilityModal = forwardRef(function (
     };
 
     return (
-        <NewModal
+        <FormModal
             title="Add Facility"
             inputs={facilityInputs}
             onSubmit={addFacility}

@@ -5,4 +5,4 @@ export { TextInput } from './TextInput';
 export { SubmitButton } from './SubmitButton';
 export { MultiSelectDropdown } from './MultiSelectDropdownControl';
 export { LibrarySearchBar } from './LibrarySearchBar';
-export {MultiSelectDropdownInput} from './MultiSelectDropdownInput'
+export { MultiSelectDropdownInput } from './MultiSelectDropdownInput';
