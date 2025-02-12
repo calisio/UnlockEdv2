@@ -74,7 +74,7 @@ export const AddUserModal = forwardRef(function (
                 }
             }
             toaster('Failed to create user', ToastState.error);
-            return;
+            return new Error('Unable to modify user');
         }
         onSuccess((response.data as NewUserResponse).temp_password);
         closeModal(addUserModal);
@@ -90,13 +90,19 @@ export const AddUserModal = forwardRef(function (
             title={'Add User'}
             inputs={[
                 ...userInputs,
-                {
-                    type: FormInputTypes.MultiSelectDropdown,
-                    label: 'Also create new account for user in:',
-                    interfaceRef: 'platforms',
-                    required: false,
-                    options: providerPlatforms ? providerPlatforms : []
-                }
+                ...(userRole === UserRole.Student
+                    ? [
+                          {
+                              type: FormInputTypes.MultiSelectDropdown,
+                              label: 'Also create new account for user in:',
+                              interfaceRef: 'platforms',
+                              required: false,
+                              options: providerPlatforms
+                                  ? providerPlatforms
+                                  : []
+                          }
+                      ]
+                    : [])
             ]}
             onSubmit={addUser}
             error={formError}

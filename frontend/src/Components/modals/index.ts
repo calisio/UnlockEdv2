@@ -13,7 +13,8 @@ import React from 'react';
 export enum CRUDActions {
     Add,
     Edit,
-    Delete
+    Delete,
+    Reset
 }
 export interface CRUDModalProps<T> {
     mutate:
@@ -26,7 +27,7 @@ export enum FormInputTypes {
     Text,
     Dropdown,
     TextArea,
-    MultiSelectDropdown,
+    MultiSelectDropdown
 }
 
 export interface Input {
@@ -57,6 +58,18 @@ export function closeModal(ref: React.ForwardedRef<HTMLDialogElement>) {
         ref.current.close();
     }
     return null;
+}
+
+export function showModal(ref: React.ForwardedRef<HTMLDialogElement>) {
+    if (ref && 'current' in ref && ref.current) {
+        ref.current.showModal();
+    }
+    return null;
+}
+
+export interface TargetItem<T> {
+    action: CRUDActions;
+    target: T;
 }
 
 // Facility Exports
@@ -184,11 +197,11 @@ export const userInputs: InputWithOptions<ProviderPlatform>[] = [
     },
     {
         type: FormInputTypes.Text,
-        label: "Username",
+        label: 'Username',
         interfaceRef: 'username',
         required: true,
-        length:50,
-        pattern:{
+        length: 50,
+        pattern: {
             value: /^[A-Za-z0-9]+$/,
             message:
                 'Username can only contain letters and numbers without spaces'

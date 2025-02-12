@@ -20,6 +20,7 @@ export const EditHelpfulLinkModal = forwardRef(function (
             toaster('Updated helpful link successfully', ToastState.success);
         } else {
             toaster('Error updating helpful link', ToastState.error);
+            return new Error();
         }
         await mutate();
     };

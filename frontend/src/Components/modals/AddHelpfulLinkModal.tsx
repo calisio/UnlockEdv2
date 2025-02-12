@@ -17,6 +17,7 @@ export const AddHelpfulLinkModal = forwardRef(function (
             toaster('Helpful link added successfully', ToastState.success);
         } else {
             toaster('Error adding helpful link', ToastState.error);
+            return new Error();
         }
         await mutate();
     };

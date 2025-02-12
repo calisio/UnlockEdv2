@@ -15,7 +15,7 @@ export const AddFacilityModal = forwardRef(function (
         const response = await API.post('facilities', data);
         if (!response.success) {
             toaster('Failed to add facility', ToastState.error);
-            return;
+            return new Error();
         }
         toaster('Facility created successfully', ToastState.success);
         await mutate();

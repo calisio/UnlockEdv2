@@ -52,8 +52,9 @@ export const FormModal = forwardRef(function FormModal<T extends FieldValues>(
     }, [error, setError]);
 
     const onSubmitHandler: SubmitHandler<T> = async (data) => {
-        await onSubmit(data);
-        reset();
+        const response = await onSubmit(data);
+        console.log(response);
+        if (!(response instanceof Error)) reset();
     };
     console.log(inputs);
     return (

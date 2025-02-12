@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import useSWR from 'swr';
 
 import {
@@ -26,14 +26,20 @@ import API from '@/api/api';
 import ULIComponent from '@/Components/ULIComponent.tsx';
 import { AxiosError } from 'axios';
 import { useToast } from '@/Context/ToastCtx';
-import { AddUserModal, EditUserModal } from '@/Components/modals';
+import {
+    AddUserModal,
+    CRUDActions,
+    EditUserModal,
+    showModal,
+    TargetItem
+} from '@/Components/modals';
 
 export default function StudentManagement() {
     const addUserModal = useRef<HTMLDialogElement>(null);
     const editUserModal = useRef<HTMLDialogElement>(null);
     const resetUserPasswordModal = useRef<HTMLDialogElement>(null);
     const deleteUserModal = useRef<HTMLDialogElement>(null);
-    const [targetUser, setTargetUser] = useState<undefined | User>();
+    const [targetUser, setTargetUser] = useState<TargetItem<User> | null>(null);
     const [tempPassword, setTempPassword] = useState<string>('');
     const showUserPassword = useRef<HTMLDialogElement>(null);
     const { toaster } = useToast();
@@ -51,20 +57,31 @@ export default function StudentManagement() {
     const userData = data?.data as User[] | [];
     const meta = data?.meta;
 
-    function resetModal() {
-        setTimeout(() => {
-            setTargetUser(undefined);
-        }, 200);
-    }
+    useEffect(() => {
+        const ref =
+            targetUser?.action === CRUDActions.Add
+                ? addUserModal
+                : targetUser?.action === CRUDActions.Edit
+                  ? editUserModal
+                  : targetUser?.action === CRUDActions.Delete
+                    ? deleteUserModal
+                    : targetUser?.action === CRUDActions.Reset
+                      ? resetUserPasswordModal
+                      : null;
+        if (ref) {
+            showModal(ref);
+        }
+    }, [targetUser]);
+
     const deleteUser = async () => {
-        if (targetUser?.role === UserRole.SystemAdmin) {
+        if (targetUser?.target.role === UserRole.SystemAdmin) {
             toaster(
                 'This is the primary administrator and cannot be deleted',
                 ToastState.error
             );
             return;
         }
-        const response = await API.delete('users/' + targetUser?.id);
+        const response = await API.delete('users/' + targetUser?.target.id);
         const toastType = response.success
             ? ToastState.success
             : ToastState.error;
@@ -73,7 +90,7 @@ export default function StudentManagement() {
             : 'Failed to delete user';
         deleteUserModal.current?.close();
         toaster(message, toastType);
-        resetModal();
+        setTargetUser(null);
         await mutate();
         return;
     };
@@ -85,18 +102,15 @@ export default function StudentManagement() {
 
     const handleDeleteUserCancel = () => {
         deleteUserModal.current?.close();
-        resetModal();
     };
 
     const handleResetPasswordCancel = (msg: string, err: boolean) => {
         const state = err ? ToastState.error : ToastState.success;
         if (msg === '' && !err) {
             resetUserPasswordModal.current?.close();
-            resetModal();
             return;
         }
         toaster(msg, state);
-        resetModal();
     };
 
     const handleDisplayTempPassword = (psw: string) => {
@@ -109,7 +123,6 @@ export default function StudentManagement() {
     const handleShowPasswordClose = () => {
         showUserPassword.current?.close();
         setTempPassword('');
-        resetModal();
     };
 
     const handleChange = (newSearch: string) => {
@@ -208,7 +221,10 @@ export default function StudentManagement() {
                                                         tooltipClassName="tooltip-left cursor-pointer"
                                                         icon={PencilSquareIcon}
                                                         onClick={() => {
-                                                            setTargetUser(user);
+                                                            setTargetUser({
+                                                                action: CRUDActions.Edit,
+                                                                target: user
+                                                            });
                                                             editUserModal.current?.showModal();
                                                         }}
                                                     />
@@ -222,7 +238,10 @@ export default function StudentManagement() {
                                                             ArrowPathRoundedSquareIcon
                                                         }
                                                         onClick={() => {
-                                                            setTargetUser(user);
+                                                            setTargetUser({
+                                                                action: CRUDActions.Reset,
+                                                                target: user
+                                                            });
                                                             resetUserPasswordModal.current?.showModal();
                                                         }}
                                                     />
@@ -234,7 +253,10 @@ export default function StudentManagement() {
                                                         tooltipClassName="tooltip-left cursor-pointer"
                                                         icon={TrashIcon}
                                                         onClick={() => {
-                                                            setTargetUser(user);
+                                                            setTargetUser({
+                                                                action: CRUDActions.Delete,
+                                                                target: user
+                                                            });
                                                             deleteUserModal.current?.showModal();
                                                         }}
                                                     />
@@ -269,17 +291,6 @@ export default function StudentManagement() {
                     )}
                 </div>
             </div>
-            {/* <Modal
-                ref={addUserModal}
-                type={ModalType.Add}
-                item="Student"
-                form={
-                    <AddUserForm
-                        onSuccess={onAddUserSuccess}
-                        userRole={UserRole.Student}
-                    />
-                }
-            /> */}
             <AddUserModal
                 mutate={mutate}
                 onSuccess={onAddUserSuccess}
@@ -289,7 +300,7 @@ export default function StudentManagement() {
             <EditUserModal
                 mutate={mutate}
                 ref={editUserModal}
-                target={targetUser}
+                target={targetUser?.target}
             />
             <Modal
                 ref={deleteUserModal}
@@ -309,7 +320,7 @@ export default function StudentManagement() {
                 item="Reset Password"
                 form={
                     <ResetPasswordForm
-                        user={targetUser}
+                        user={targetUser?.target}
                         onCancel={handleResetPasswordCancel}
                         onSuccess={handleDisplayTempPassword}
                     />
@@ -324,7 +335,7 @@ export default function StudentManagement() {
                         tempPassword={tempPassword}
                         userName={
                             targetUser
-                                ? `${targetUser.name_first} ${targetUser.name_last}`
+                                ? `${targetUser.target.name_first} ${targetUser.target.name_last}`
                                 : undefined
                         }
                         onClose={handleShowPasswordClose}

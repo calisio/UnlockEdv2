@@ -23,7 +23,7 @@ export const AddProviderModal = forwardRef(function (
         )) as ServerResponseOne<ProviderResponse>;
         if (!response.success) {
             toaster('Failed to add provider platform', ToastState.error);
-            return;
+            return new Error();
         }
         if (response.data.oauth2Url) {
             window.location.href = response.data.oauth2Url;

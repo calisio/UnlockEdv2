@@ -14,7 +14,6 @@ import {
     User,
     UserRole
 } from '@/common';
-import AddUserForm from '@/Components/forms/AddUserForm';
 import Modal from '@/Components/Modal';
 import DeleteForm from '@/Components/DeleteForm';
 import ResetPasswordForm from '@/Components/forms/ResetPasswordForm';
@@ -27,6 +26,7 @@ import { AxiosError } from 'axios';
 import API from '@/api/api';
 import ULIComponent from '@/Components/ULIComponent.tsx';
 import { useToast } from '@/Context/ToastCtx';
+import { AddUserModal, EditUserModal } from '@/Components/modals';
 
 export default function AdminManagement() {
     const addUserModal = useRef<HTMLDialogElement>(null);
@@ -79,18 +79,8 @@ export default function AdminManagement() {
         return;
     };
 
-    const onAddUserSuccess = (pswd = '', msg: string, type: ToastState) => {
-        toaster(msg, type);
-        setTempPassword(pswd);
-        addUserModal.current?.close();
-        showUserPassword.current?.showModal();
-        void mutate();
-    };
-
-    const handleEditUser = () => {
-        editUserModal.current?.close();
-        resetModal();
-        void mutate();
+    const onAddUserSuccess = (tempPassword: string) => {
+        setTempPassword(tempPassword);
     };
 
     const handleDeleteUserCancel = () => {
@@ -296,31 +286,16 @@ export default function AdminManagement() {
                     )}
                 </div>
             </div>
-            <Modal
+            <AddUserModal
+                mutate={mutate}
+                onSuccess={onAddUserSuccess}
+                userRole={UserRole.Admin}
                 ref={addUserModal}
-                type={ModalType.Add}
-                item="Admin"
-                form={
-                    <AddUserForm
-                        onSuccess={onAddUserSuccess}
-                        userRole={UserRole.Admin}
-                    />
-                }
             />
-            <Modal
+            <EditUserModal
+                mutate={mutate}
+                target={targetUser}
                 ref={editUserModal}
-                type={ModalType.Edit}
-                item="Admin"
-                form={
-                    targetUser ? (
-                        <EditUserForm
-                            onSuccess={handleEditUser}
-                            user={targetUser}
-                        />
-                    ) : (
-                        <div>No user defined!</div>
-                    )
-                }
             />
             <Modal
                 ref={deleteUserModal}

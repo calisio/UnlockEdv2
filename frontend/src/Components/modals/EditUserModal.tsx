@@ -15,7 +15,7 @@ export const EditUserModal = forwardRef(function (
         const resp = await API.patch(`users/${target?.id}`, data);
         if (!resp.success) {
             toaster('Unable to modify user', ToastState.error);
-            return;
+            return new Error();
         }
         closeModal(editUserModal);
         await mutate();

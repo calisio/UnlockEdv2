@@ -15,7 +15,7 @@ export const EditFacilityModal = forwardRef(function (
         const response = await API.patch(`facilities/${target?.id}`, data);
         if (!response.success) {
             toaster('Failed to update facility', ToastState.error);
-            return;
+            return new Error();
         }
         toaster('Facility updated successfully', ToastState.success);
         closeModal(editFacilityModal);

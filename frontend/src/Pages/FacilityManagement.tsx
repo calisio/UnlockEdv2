@@ -17,7 +17,9 @@ import { useToast } from '@/Context/ToastCtx';
 import {
     AddFacilityModal,
     CRUDActions,
-    EditFacilityModal
+    EditFacilityModal,
+    showModal,
+    TargetItem
 } from '@/Components/modals';
 
 export default function FacilityManagement() {
@@ -25,10 +27,8 @@ export default function FacilityManagement() {
     const editFacilityModal = useRef<HTMLDialogElement>(null);
     const deleteFacilityModal = useRef<HTMLDialogElement>(null);
     const { toaster } = useToast();
-    const [targetFacility, setTargetFacility] = useState<{
-        action: CRUDActions;
-        facility: Facility;
-    } | null>(null);
+    const [targetFacility, setTargetFacility] =
+        useState<TargetItem<Facility> | null>(null);
 
     const [perPage, setPerPage] = useState(10);
     const [pageQuery, setPageQuery] = useState(1);
@@ -46,28 +46,30 @@ export default function FacilityManagement() {
     const facilityData = facility?.data ?? [];
 
     useEffect(() => {
-        if (targetFacility?.action == CRUDActions.Edit) {
-            editFacilityModal.current?.showModal();
-        }
-        if (targetFacility?.action == CRUDActions.Add) {
-            addFacilityModal.current?.showModal();
-        }
-        if (targetFacility?.action == CRUDActions.Delete) {
-            deleteFacilityModal.current?.showModal();
+        const ref =
+            targetFacility?.action === CRUDActions.Add
+                ? addFacilityModal
+                : targetFacility?.action === CRUDActions.Edit
+                  ? editFacilityModal
+                  : targetFacility?.action === CRUDActions.Delete
+                    ? deleteFacilityModal
+                    : null;
+        if (ref) {
+            showModal(ref);
         }
     }, [targetFacility]);
 
     const openDeleteFacility = (facility: Facility) => {
         setTargetFacility({
             action: CRUDActions.Delete,
-            facility: facility
+            target: facility
         });
     };
 
     function openEditFacility(facility: Facility) {
         setTargetFacility({
             action: CRUDActions.Edit,
-            facility: facility
+            target: facility
         });
     }
 
@@ -78,13 +80,13 @@ export default function FacilityManagement() {
     };
 
     const deleteFacility = async () => {
-        if (targetFacility?.facility.id == 1) {
+        if (targetFacility?.target.id == 1) {
             toaster('Cannot delete default facility', ToastState.error);
             deleteFacilityModal.current?.close();
             return;
         }
         const response = await API.delete(
-            'facilities/' + targetFacility?.facility.id
+            'facilities/' + targetFacility?.target.id
         );
         if (response.success) {
             toaster('Facility successfully deleted', ToastState.success);
@@ -159,7 +161,7 @@ export default function FacilityManagement() {
             <EditFacilityModal
                 mutate={mutate}
                 ref={editFacilityModal}
-                target={targetFacility?.facility}
+                target={targetFacility?.target}
             />
             <Modal
                 ref={deleteFacilityModal}
