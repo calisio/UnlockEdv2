@@ -28,13 +28,17 @@ export function MultiSelectDropdownInput<T>({
                 option !== undefined &&
                 'id' in option &&
                 'name' in option ? (
-                    <div key={index}>
+                    <div
+                        key={index}
+                        className="flex flex-row gap-2 items-center py-1"
+                    >
                         <input
                             {...register(interfaceRef, { required })}
                             type="checkbox"
+                            className="checkbox checkbox-sm"
                             value={option.id as number}
                         />
-                        <span>{option.name as string}</span>
+                        <p className="body">{option.name as string}</p>
                     </div>
                 ) : null
             )}

@@ -56,7 +56,7 @@ export const FormModal = forwardRef(function FormModal<T extends FieldValues>(
         console.log(response);
         if (!(response instanceof Error)) reset();
     };
-    console.log(inputs);
+
     return (
         <dialog ref={ref} className="modal relative">
             <div className="modal-box">
