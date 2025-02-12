@@ -136,7 +136,7 @@ export default function HelpfulLinksManagement() {
             <AddHelpfulLinkModal mutate={mutate} ref={addLinkModal} />
             <EditHelpfulLinkModal
                 mutate={mutate}
-                target={currentLink}
+                targetLink={currentLink ?? ({} as HelpfulLink)}
                 ref={editLinkModal}
             />
             <Modal

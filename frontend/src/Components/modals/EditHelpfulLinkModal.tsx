@@ -1,19 +1,22 @@
 import { forwardRef } from 'react';
 import { CRUDModalProps, linkInputs } from '.';
-import { HelpfulLinkAndSort, ToastState } from '@/common';
+import { HelpfulLink, HelpfulLinkAndSort, ToastState } from '@/common';
 import { useToast } from '@/Context/ToastCtx';
 import { FieldValues, SubmitHandler } from 'react-hook-form';
 import API from '@/api/api';
 import FormModal from '../FormModal';
 
 export const EditHelpfulLinkModal = forwardRef(function (
-    { mutate, target }: CRUDModalProps<HelpfulLinkAndSort>,
+    {
+        mutate,
+        targetLink
+    }: CRUDModalProps<HelpfulLinkAndSort> & { targetLink: HelpfulLink },
     editHelpfulLinkModal: React.ForwardedRef<HTMLDialogElement>
 ) {
     const { toaster } = useToast();
     const updateLink: SubmitHandler<FieldValues> = async (data) => {
         const response = await API.patch(
-            `helpful-links/${target?.id}/edit`,
+            `helpful-links/${targetLink?.id}/edit`,
             data
         );
         if (response.success) {
@@ -28,7 +31,7 @@ export const EditHelpfulLinkModal = forwardRef(function (
         <FormModal
             title={'Edit Helpful Link'}
             inputs={linkInputs}
-            defaultValues={target ? target : undefined}
+            defaultValues={targetLink ?? undefined}
             onSubmit={updateLink}
             ref={editHelpfulLinkModal}
         />
