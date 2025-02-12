@@ -1,5 +1,5 @@
 import { forwardRef } from 'react';
-import { CRUDModalProps, providerInputs } from '.';
+import { CRUDModalProps, providerInputs, FormModal } from '.';
 import {
     ProviderPlatform,
     ProviderResponse,
@@ -9,7 +9,6 @@ import {
 import { useToast } from '@/Context/ToastCtx';
 import { FieldValues, SubmitHandler } from 'react-hook-form';
 import API from '@/api/api';
-import FormModal from '../FormModal';
 
 export const AddProviderModal = forwardRef(function (
     { mutate }: CRUDModalProps<ProviderPlatform>,

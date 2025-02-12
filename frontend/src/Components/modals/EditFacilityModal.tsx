@@ -1,7 +1,6 @@
 import { forwardRef } from 'react';
 import { Facility, ToastState } from '@/common';
-import FormModal from '../FormModal';
-import { closeModal, CRUDModalProps, facilityInputs } from '.';
+import { closeModal, CRUDModalProps, facilityInputs, FormModal } from '.';
 import { FieldValues, SubmitHandler } from 'react-hook-form';
 import API from '@/api/api';
 import { useToast } from '@/Context/ToastCtx';

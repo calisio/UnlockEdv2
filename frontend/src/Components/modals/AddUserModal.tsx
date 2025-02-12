@@ -1,7 +1,6 @@
 import { forwardRef, useState } from 'react';
 import { closeModal, CRUDModalProps, FormInputTypes, userInputs } from '.';
 import { useToast } from '@/Context/ToastCtx';
-import FormModal, { FormError } from '../FormModal';
 import { FieldValues, SubmitHandler } from 'react-hook-form';
 import {
     NewUserResponse,
@@ -12,6 +11,7 @@ import {
 } from '@/common';
 import API from '@/api/api';
 import { useLoaderData } from 'react-router-dom';
+import FormModal, { FormError } from './FormModal';
 
 export const AddUserModal = forwardRef(function (
     {
@@ -24,8 +24,6 @@ export const AddUserModal = forwardRef(function (
     },
     addUserModal: React.ForwardedRef<HTMLDialogElement>
 ) {
-    // const [selectedProviders, setSelectedProviders] = useState<number[]>([]);
-
     const { providerPlatforms } = useLoaderData() as {
         providerPlatforms: ProviderPlatform[];
     };

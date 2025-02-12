@@ -12,11 +12,11 @@ import {
     SubmitButton,
     TextAreaInput,
     TextInput
-} from './inputs';
+} from '../inputs';
 import { forwardRef, useEffect } from 'react';
-import { FormInputTypes, Input, InputWithOptions } from './modals';
+import { FormInputTypes, Input, InputWithOptions } from '.';
 
-interface ModalProps<T extends FieldValues> {
+interface FormModalProps<T extends FieldValues> {
     title: string;
     inputs: Input[];
     defaultValues?: DefaultValues<T>;
@@ -30,7 +30,7 @@ export interface FormError {
 }
 
 export const FormModal = forwardRef(function FormModal<T extends FieldValues>(
-    { title, inputs, onSubmit, defaultValues, error }: ModalProps<T>,
+    { title, inputs, onSubmit, defaultValues, error }: FormModalProps<T>,
     ref: React.ForwardedRef<HTMLDialogElement>
 ) {
     const {
@@ -54,7 +54,8 @@ export const FormModal = forwardRef(function FormModal<T extends FieldValues>(
     const onSubmitHandler: SubmitHandler<T> = async (data) => {
         const response = await onSubmit(data);
         console.log(response);
-        if (!(response instanceof Error)) reset();
+        if (response instanceof Error) return;
+        else reset();
     };
 
     return (

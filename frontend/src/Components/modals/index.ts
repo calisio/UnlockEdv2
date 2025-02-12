@@ -10,12 +10,21 @@ import { KeyedMutator } from 'swr';
 import { Validate } from 'react-hook-form';
 import React from 'react';
 
+export enum TextModalType {
+    Confirm,
+    Delete,
+    Error
+}
+
+export { TextOnlyModal } from './TextOnlyModal';
+
 export enum CRUDActions {
     Add,
     Edit,
     Delete,
     Reset
 }
+
 export interface CRUDModalProps<T> {
     mutate:
         | KeyedMutator<ServerResponseMany<T>>
@@ -71,6 +80,8 @@ export interface TargetItem<T> {
     action: CRUDActions;
     target: T;
 }
+
+export { FormModal } from './FormModal';
 
 // Facility Exports
 export const facilityInputs: Input[] = [

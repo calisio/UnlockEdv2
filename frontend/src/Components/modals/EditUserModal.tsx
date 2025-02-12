@@ -1,10 +1,9 @@
 import { forwardRef } from 'react';
-import { closeModal, CRUDModalProps, userInputs } from '.';
+import { closeModal, CRUDModalProps, FormModal, userInputs } from '.';
 import { useToast } from '@/Context/ToastCtx';
 import { FieldValues, SubmitHandler } from 'react-hook-form';
 import { ToastState, User } from '@/common';
 import API from '@/api/api';
-import FormModal from '../FormModal';
 
 export const EditUserModal = forwardRef(function (
     { mutate, target }: CRUDModalProps<User>,

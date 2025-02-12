@@ -1,10 +1,9 @@
 import { forwardRef } from 'react';
-import { CRUDModalProps, linkInputs } from '.';
+import { closeModal, CRUDModalProps, FormModal, linkInputs } from '.';
 import { HelpfulLink, HelpfulLinkAndSort, ToastState } from '@/common';
 import { useToast } from '@/Context/ToastCtx';
 import { FieldValues, SubmitHandler } from 'react-hook-form';
 import API from '@/api/api';
-import FormModal from '../FormModal';
 
 export const EditHelpfulLinkModal = forwardRef(function (
     {
@@ -26,6 +25,7 @@ export const EditHelpfulLinkModal = forwardRef(function (
             return new Error();
         }
         await mutate();
+        closeModal(editHelpfulLinkModal);
     };
     return (
         <FormModal

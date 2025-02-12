@@ -1,10 +1,9 @@
 import { forwardRef } from 'react';
-import { CRUDModalProps, linkInputs } from '.';
+import { CRUDModalProps, FormModal, linkInputs } from '.';
 import { HelpfulLinkAndSort, ToastState } from '@/common';
 import { useToast } from '@/Context/ToastCtx';
 import { FieldValues, SubmitHandler } from 'react-hook-form';
 import API from '@/api/api';
-import FormModal from '../FormModal';
 
 export const AddHelpfulLinkModal = forwardRef(function (
     { mutate }: CRUDModalProps<HelpfulLinkAndSort>,

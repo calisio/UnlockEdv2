@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { ForwardedRef, useEffect, useRef, useState } from 'react';
 import useSWR from 'swr';
 
 import {
@@ -9,14 +9,14 @@ import {
 } from '@heroicons/react/24/outline';
 import {
     ModalType,
+    ResetPasswordResponse,
     ServerResponseMany,
+    ServerResponseOne,
     ToastState,
     User,
     UserRole
 } from '@/common';
 import Modal from '@/Components/Modal';
-import DeleteForm from '@/Components/DeleteForm';
-import ResetPasswordForm from '@/Components/forms/ResetPasswordForm';
 import ShowTempPasswordForm from '@/Components/forms/ShowTempPasswordForm';
 import DropdownControl from '@/Components/inputs/DropdownControl';
 import SearchBar from '@/Components/inputs/SearchBar';
@@ -28,10 +28,13 @@ import { AxiosError } from 'axios';
 import { useToast } from '@/Context/ToastCtx';
 import {
     AddUserModal,
+    closeModal,
     CRUDActions,
     EditUserModal,
     showModal,
-    TargetItem
+    TargetItem,
+    TextModalType,
+    TextOnlyModal
 } from '@/Components/modals';
 
 export default function StudentManagement() {
@@ -95,35 +98,35 @@ export default function StudentManagement() {
         return;
     };
 
+    const getTempPassword = async () => {
+        if (targetUser === null) return;
+        const response = (await API.post<
+            ResetPasswordResponse,
+            { user_id: number }
+        >('users/student-password', {
+            user_id: targetUser.target.id
+        })) as ServerResponseOne<ResetPasswordResponse>;
+        if (!response.success) {
+            toaster('Failed to reset password', ToastState.error);
+            return;
+        }
+        setTempPassword(response.data.temp_password);
+        closeModal(resetUserPasswordModal);
+        showModal(showUserPassword);
+        toaster('Password reset successfully', ToastState.success);
+        return;
+    };
+
     const onAddUserSuccess = (pswd = '') => {
         setTempPassword(pswd);
         void mutate();
     };
 
-    const handleDeleteUserCancel = () => {
-        deleteUserModal.current?.close();
-    };
-
-    const handleResetPasswordCancel = (msg: string, err: boolean) => {
-        const state = err ? ToastState.error : ToastState.success;
-        if (msg === '' && !err) {
-            resetUserPasswordModal.current?.close();
-            return;
-        }
-        toaster(msg, state);
-    };
-
-    const handleDisplayTempPassword = (psw: string) => {
-        setTempPassword(psw);
-        resetUserPasswordModal.current?.close();
-        showUserPassword.current?.showModal();
-        toaster('Password reset successfully', ToastState.success);
-    };
-
-    const handleShowPasswordClose = () => {
-        showUserPassword.current?.close();
+    function handleCancelModal(ref: ForwardedRef<HTMLDialogElement>) {
+        closeModal(ref);
+        setTargetUser(null);
         setTempPassword('');
-    };
+    }
 
     const handleChange = (newSearch: string) => {
         setSearchTerm(newSearch);
@@ -302,29 +305,23 @@ export default function StudentManagement() {
                 ref={editUserModal}
                 target={targetUser?.target}
             />
-            <Modal
+            <TextOnlyModal
                 ref={deleteUserModal}
-                type={ModalType.Confirm}
-                item="Delete Student"
-                form={
-                    <DeleteForm
-                        item="User"
-                        onCancel={handleDeleteUserCancel}
-                        onSuccess={() => void deleteUser()}
-                    />
+                type={TextModalType.Delete}
+                title={'Delete Resident'}
+                text={
+                    'Are you sure you would like to delete this resident? This action cannot be undone.'
                 }
+                onSubmit={() => void deleteUser()}
+                onClose={() => void handleCancelModal(deleteUserModal)}
             />
-            <Modal
+            <TextOnlyModal
                 ref={resetUserPasswordModal}
-                type={ModalType.Confirm}
-                item="Reset Password"
-                form={
-                    <ResetPasswordForm
-                        user={targetUser?.target}
-                        onCancel={handleResetPasswordCancel}
-                        onSuccess={handleDisplayTempPassword}
-                    />
-                }
+                type={TextModalType.Confirm}
+                title={'Confirm Reset Password'}
+                text={`Are you sure you would like to reset ${targetUser?.target.name_first + ' ' + targetUser?.target.name_last}'s password?`}
+                onSubmit={() => void getTempPassword()}
+                onClose={() => void handleCancelModal(resetUserPasswordModal)}
             />
             <Modal
                 ref={showUserPassword}
@@ -338,7 +335,7 @@ export default function StudentManagement() {
                                 ? `${targetUser.target.name_first} ${targetUser.target.name_last}`
                                 : undefined
                         }
-                        onClose={handleShowPasswordClose}
+                        onClose={() => handleCancelModal(showUserPassword)}
                     />
                 }
             />

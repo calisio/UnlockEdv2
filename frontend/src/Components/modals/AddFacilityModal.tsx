@@ -1,10 +1,9 @@
 import { forwardRef } from 'react';
-import FormModal from '../FormModal';
 import { FieldValues, SubmitHandler } from 'react-hook-form';
 import API from '@/api/api';
 import { useToast } from '@/Context/ToastCtx';
 import { Facility, ToastState } from '@/common';
-import { CRUDModalProps, facilityInputs } from './index';
+import { CRUDModalProps, facilityInputs, FormModal } from '.';
 
 export const AddFacilityModal = forwardRef(function (
     { mutate }: CRUDModalProps<Facility>,
