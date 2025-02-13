@@ -36,7 +36,8 @@ export enum FormInputTypes {
     Text,
     Dropdown,
     TextArea,
-    MultiSelectDropdown
+    MultiSelectDropdown,
+    Unique
 }
 
 export interface Input {
@@ -136,15 +137,10 @@ export const providerInputs: Input[] = [
         label: 'Account Id',
         interfaceRef: 'account_id',
         required: true
-    },
-    {
-        type: FormInputTypes.Text,
-        label: 'Access Key',
-        interfaceRef: 'access_key',
-        required: true
     }
 ];
 export { AddProviderModal } from './AddProviderModal';
+export { EditProviderModal } from './EditProviderModal';
 
 // Helpful Links Exports
 export const linkInputs: Input[] = [

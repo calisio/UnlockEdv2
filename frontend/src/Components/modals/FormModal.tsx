@@ -132,6 +132,9 @@ export const FormModal = forwardRef(function FormModal<T extends FieldValues>(
                                         />
                                     );
                                 }
+                                if (input.type === FormInputTypes.Unique) {
+                                    return input.uniqueComponent;
+                                }
                                 return;
                             }
                         )}

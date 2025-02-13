@@ -1,5 +1,4 @@
 import ProviderCard from '@/Components/ProviderCard';
-import EditProviderForm from '@/Components/forms/EditProviderForm';
 import { AxiosError } from 'axios';
 import Modal from '@/Components/Modal';
 import {
@@ -10,7 +9,8 @@ import {
     ToastState,
     ProviderPlatformState,
     FeatureAccess,
-    ProviderResponse
+    ProviderResponse,
+    ServerResponseMany
 } from '@/common';
 import { PlusCircleIcon } from '@heroicons/react/24/outline';
 import { useRef, useState, useEffect } from 'react';
@@ -20,6 +20,7 @@ import NewOidcClientNotification from '@/Components/NewOidcClientNotification';
 import API from '@/api/api';
 import { useToast } from '@/Context/ToastCtx';
 import { hasFeature, useAuth } from '@/useAuth';
+import { EditProviderModal, showModal } from '@/Components/modals';
 
 export default function ProviderPlatformManagement() {
     const { user } = useAuth();
@@ -28,9 +29,9 @@ export default function ProviderPlatformManagement() {
     }
     const addProviderModal = useRef<HTMLDialogElement>(null);
     const editProviderModal = useRef<HTMLDialogElement>(null);
-    const [editProvider, setEditProvider] = useState<
-        ProviderPlatform | undefined
-    >();
+    const [editProvider, setEditProvider] = useState<ProviderPlatform | null>(
+        null
+    );
     const openOidcClientModal = useRef<HTMLDialogElement>(null);
     const openOidcRegistrationModal = useRef<HTMLDialogElement>(null);
     const [oidcClient, setOidcClient] = useState<OidcClient | undefined>();
@@ -40,12 +41,10 @@ export default function ProviderPlatformManagement() {
         mutate,
         error,
         isLoading
-    } = useSWR<ServerResponse<ProviderPlatform>, AxiosError>(
+    } = useSWR<ServerResponseMany<ProviderPlatform>, AxiosError>(
         `/api/provider-platforms`
     );
-    const providerData = providers?.data
-        ? (providers.data as ProviderPlatform[])
-        : [];
+    const providerData = providers?.data ?? [];
     useEffect(() => {
         const queryParams = new URLSearchParams(window.location.search);
         const status = queryParams.get('status');
@@ -65,25 +64,12 @@ export default function ProviderPlatformManagement() {
             window.history.replaceState({}, document.title, url.toString());
         }
     }, [toaster]);
-    function resetModal() {
-        setTimeout(() => {
-            setEditProvider(undefined);
-        }, 200);
-    }
+
+    useEffect(() => console.log(editProvider), [editProvider]);
 
     function openEditProvider(provider: ProviderPlatform) {
         setEditProvider(provider);
-        editProviderModal.current?.showModal();
-    }
-
-    function updateProvider(state: ToastState, message: string) {
-        void mutate();
-        if (state && message) {
-            toaster(message, state);
-        }
-        editProviderModal.current?.close();
-        addProviderModal.current?.close();
-        resetModal();
+        showModal(editProviderModal);
     }
 
     const registerOidcClient = (prov: ProviderPlatform) => {
@@ -96,7 +82,7 @@ export default function ProviderPlatformManagement() {
         state: ToastState
     ) => {
         openOidcClientModal.current?.close();
-        setEditProvider(undefined);
+        setEditProvider(null);
         if (!response && state === ToastState.success) {
             toaster('OIDC client registered successfully', state);
         } else if (!response && state === ToastState.error) {
@@ -229,21 +215,9 @@ export default function ProviderPlatformManagement() {
                 </table>
             </div>
             {/* Modals */}
-            <Modal
-                type={ModalType.Edit}
-                item="Provider"
-                form={
-                    editProvider ? (
-                        <EditProviderForm
-                            onSuccess={(state: ToastState, message: string) => {
-                                updateProvider(state, message);
-                            }}
-                            provider={editProvider}
-                        />
-                    ) : (
-                        <div></div>
-                    )
-                }
+            <EditProviderModal
+                mutate={mutate}
+                target={editProvider ?? undefined}
                 ref={editProviderModal}
             />
             <Modal

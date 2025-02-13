@@ -277,39 +277,6 @@ export default function AdminManagement() {
                 onSubmit={() => deleteUser}
                 onClose={() => handleCancelModal(deleteUserModal)}
             />
-            {/* <TextOnlyModal
-                type={
-                    isAdministrator(targetUser ?? undefined)
-                        ? TextModalType.Confirm
-                        : TextModalType.Error
-                }
-                title={'Reset Password'}
-                text={
-                    isAdministrator(targetUser ?? undefined)
-                        ? `You may only reset the password for non-administrator accounts.`
-                        : `Are you sure you would like to reset ${targetUser?.name_first + ' ' + targetUser?.name_last}'s password?`
-                }
-                onSubmit={() => void handleDisplayTempPassword(tempPassword)}
-                onClose={() => void handleResetPasswordCancel()}
-                ref={resetUserPasswordModal}
-            /> */}
-
-            {/* <Modal
-                ref={showUserPassword}
-                type={ModalType.Show}
-                item={'New Password'}
-                form={
-                    <ShowTempPasswordForm
-                        tempPassword={tempPassword}
-                        userName={
-                            targetUser
-                                ? `${targetUser.name_first} ${targetUser.name_last}`
-                                : undefined
-                        }
-                        onClose={handleShowPasswordClose}
-                    />
-                }
-            /> */}
             <TextOnlyModal
                 ref={showUserPassword}
                 type={TextModalType.Information}
