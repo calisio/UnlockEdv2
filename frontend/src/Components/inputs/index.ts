@@ -8,4 +8,5 @@ export { LibrarySearchBar } from './LibrarySearchBar';
 export { MultiSelectDropdownInput } from './MultiSelectDropdownInput';
 export { CancelButton } from './CancelButton';
 export { DeleteButton } from './DeleteButton';
+export { ConfirmButton } from './ConfirmButton';
 export { CancelSubmitRow } from './CancelSubmitRow';

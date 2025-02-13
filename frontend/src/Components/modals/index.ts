@@ -13,7 +13,7 @@ import React from 'react';
 export enum TextModalType {
     Confirm,
     Delete,
-    Error
+    Information
 }
 
 export { TextOnlyModal } from './TextOnlyModal';

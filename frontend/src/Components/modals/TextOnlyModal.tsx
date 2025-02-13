@@ -1,4 +1,4 @@
-import { forwardRef } from 'react';
+import { forwardRef, ReactNode } from 'react';
 import { CancelSubmitRow, CloseX } from '../inputs';
 import { TextModalType } from '.';
 
@@ -10,9 +10,17 @@ interface TextModalProps {
     onClose: () => void;
 }
 export const TextOnlyModal = forwardRef(function TextModal(
-    { type, title, text, onSubmit, onClose }: TextModalProps,
+    {
+        type,
+        title,
+        text,
+        onSubmit,
+        onClose,
+        children
+    }: TextModalProps & { children?: ReactNode },
     ref: React.ForwardedRef<HTMLDialogElement>
 ) {
+    console.log(type);
     return (
         <dialog ref={ref} className="modal relative">
             <div className="modal-box">
@@ -21,16 +29,16 @@ export const TextOnlyModal = forwardRef(function TextModal(
                     <span className={`text-3xl font-semibold text-neutral`}>
                         {title}
                     </span>
-                    <p
-                        className={`${type === TextModalType.Error && '!text-error'}`}
-                    >
-                        {text}
-                    </p>
-                    <CancelSubmitRow
-                        type={type}
-                        onCancel={onClose}
-                        onSubmit={onSubmit}
-                    />
+                    <p>{text}</p>
+                    {type === TextModalType.Information ? (
+                        <>{children}</>
+                    ) : (
+                        <CancelSubmitRow
+                            type={type}
+                            onCancel={onClose}
+                            onSubmit={onSubmit}
+                        />
+                    )}
                 </div>
             </div>
         </dialog>

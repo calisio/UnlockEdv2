@@ -1,5 +1,6 @@
 import { TextModalType } from '../modals';
 import { CancelButton } from './CancelButton';
+import { ConfirmButton } from './ConfirmButton';
 import { DeleteButton } from './DeleteButton';
 
 export function CancelSubmitRow({
@@ -11,13 +12,14 @@ export function CancelSubmitRow({
     onCancel: () => void;
     onSubmit: () => void;
 }) {
+    console.log(type);
     return (
         <form method="dialog" className="flex flex-row justify-between">
             <CancelButton onClick={onCancel} />
             {type === TextModalType.Delete ? (
                 <DeleteButton onClick={onSubmit} />
             ) : type === TextModalType.Confirm ? (
-                <div></div>
+                <ConfirmButton onClick={onSubmit} />
             ) : null}
         </form>
     );

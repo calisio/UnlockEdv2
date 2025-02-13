@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { ForwardedRef, useRef, useState } from 'react';
 import useSWR from 'swr';
 import {
     ArrowPathRoundedSquareIcon,
@@ -7,15 +7,7 @@ import {
     PencilSquareIcon,
     PlusCircleIcon
 } from '@heroicons/react/24/outline';
-import {
-    ModalType,
-    ServerResponseMany,
-    ToastState,
-    User,
-    UserRole
-} from '@/common';
-import Modal from '@/Components/Modal';
-import ShowTempPasswordForm from '@/Components/forms/ShowTempPasswordForm';
+import { ServerResponseMany, ToastState, User, UserRole } from '@/common';
 import DropdownControl from '@/Components/inputs/DropdownControl';
 import SearchBar from '@/Components/inputs/SearchBar';
 import { useDebounceValue } from 'usehooks-ts';
@@ -28,6 +20,7 @@ import {
     AddUserModal,
     closeModal,
     EditUserModal,
+    showModal,
     TextModalType,
     TextOnlyModal
 } from '@/Components/modals';
@@ -74,53 +67,11 @@ export default function AdminManagement() {
         await mutate();
     };
 
-    // const getTempPassword = async () => {
-    //     if (!targetUser) return;
-    //     const response = (await API.post<
-    //         ResetPasswordResponse,
-    //         { user_id: number }
-    //     >('users/student-password', {
-    //         user_id: targetUser.id
-    //     })) as ServerResponseOne<ResetPasswordResponse>;
-    //     if (!response.success) {
-    //         toaster('Failed to reset password', ToastState.error);
-    //         return;
-    //     }
-    //     setTempPassword(response.data.temp_password);
-    //     return;
-    // };
-
     const onAddUserSuccess = (tempPassword: string) => {
         setTempPassword(tempPassword);
-    };
-
-    const handleDeleteUserCancel = () => {
-        deleteUserModal.current?.close();
-        setTargetUser(null);
-    };
-
-    // const handleResetPasswordCancel = (msg: string, err: boolean) => {
-    //     const state = err ? ToastState.error : ToastState.success;
-    //     if (msg === '' && !err) {
-    //         resetUserPasswordModal.current?.close();
-    //         setTargetUser(null);
-    //         return;
-    //     }
-    //     toaster(msg, state);
-    //     setTargetUser(null);
-    // };
-
-    // const handleDisplayTempPassword = (psw: string) => {
-    //     setTempPassword(psw);
-    //     resetUserPasswordModal.current?.close();
-    //     showUserPassword.current?.showModal();
-    //     toaster('Password Successfully Reset', ToastState.success);
-    // };
-
-    const handleShowPasswordClose = () => {
-        showUserPassword.current?.close();
-        setTempPassword('');
-        setTargetUser(null);
+        closeModal(resetUserPasswordModal);
+        showModal(showUserPassword);
+        toaster('Password Successfully Reset', ToastState.success);
     };
 
     const handleChange = (newSearch: string) => {
@@ -133,6 +84,12 @@ export default function AdminManagement() {
         setPageQuery(1);
         void mutate();
     };
+
+    function handleCancelModal(ref: ForwardedRef<HTMLDialogElement>) {
+        closeModal(ref);
+        setTargetUser(null);
+        setTempPassword('');
+    }
 
     const getUserIconData = {
         'data-tip': (user: User) => {
@@ -318,7 +275,7 @@ export default function AdminManagement() {
                     'Are you sure you would like to delete this admin? This action cannot be undone.'
                 }
                 onSubmit={() => deleteUser}
-                onClose={handleDeleteUserCancel}
+                onClose={() => handleCancelModal(deleteUserModal)}
             />
             {/* <TextOnlyModal
                 type={
@@ -337,7 +294,7 @@ export default function AdminManagement() {
                 ref={resetUserPasswordModal}
             /> */}
 
-            <Modal
+            {/* <Modal
                 ref={showUserPassword}
                 type={ModalType.Show}
                 item={'New Password'}
@@ -352,7 +309,23 @@ export default function AdminManagement() {
                         onClose={handleShowPasswordClose}
                     />
                 }
-            />
+            /> */}
+            <TextOnlyModal
+                ref={showUserPassword}
+                type={TextModalType.Information}
+                title={'New Password'}
+                text={`Copy this password now. If you lose it, you'll need to
+                        regenerate it to get a new one.`}
+                onSubmit={() => {}} //eslint-disable-line
+                onClose={() => handleCancelModal(showUserPassword)}
+            >
+                <div className="stats shadow">
+                    <div className="stat">
+                        <div className="stat-title">Temporary Password</div>
+                        <div className="stat-value">{tempPassword}</div>
+                    </div>
+                </div>
+            </TextOnlyModal>
         </div>
     );
 }

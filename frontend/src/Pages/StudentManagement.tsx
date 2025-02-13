@@ -8,7 +8,6 @@ import {
     PlusCircleIcon
 } from '@heroicons/react/24/outline';
 import {
-    ModalType,
     ResetPasswordResponse,
     ServerResponseMany,
     ServerResponseOne,
@@ -16,8 +15,6 @@ import {
     User,
     UserRole
 } from '@/common';
-import Modal from '@/Components/Modal';
-import ShowTempPasswordForm from '@/Components/forms/ShowTempPasswordForm';
 import DropdownControl from '@/Components/inputs/DropdownControl';
 import SearchBar from '@/Components/inputs/SearchBar';
 import { useDebounceValue } from 'usehooks-ts';
@@ -117,9 +114,9 @@ export default function StudentManagement() {
         return;
     };
 
-    const onAddUserSuccess = (pswd = '') => {
+    const onAddUserSuccess = (pswd: string) => {
         setTempPassword(pswd);
-        void mutate();
+        showModal(showUserPassword);
     };
 
     function handleCancelModal(ref: ForwardedRef<HTMLDialogElement>) {
@@ -318,27 +315,27 @@ export default function StudentManagement() {
             <TextOnlyModal
                 ref={resetUserPasswordModal}
                 type={TextModalType.Confirm}
-                title={'Confirm Reset Password'}
+                title={'Reset Password'}
                 text={`Are you sure you would like to reset ${targetUser?.target.name_first + ' ' + targetUser?.target.name_last}'s password?`}
                 onSubmit={() => void getTempPassword()}
                 onClose={() => void handleCancelModal(resetUserPasswordModal)}
             />
-            <Modal
+            <TextOnlyModal
                 ref={showUserPassword}
-                type={ModalType.Show}
-                item={'New Password'}
-                form={
-                    <ShowTempPasswordForm
-                        tempPassword={tempPassword}
-                        userName={
-                            targetUser
-                                ? `${targetUser.target.name_first} ${targetUser.target.name_last}`
-                                : undefined
-                        }
-                        onClose={() => handleCancelModal(showUserPassword)}
-                    />
-                }
-            />
+                type={TextModalType.Information}
+                title={'New Password'}
+                text={`Copy this password now. If you lose it, you'll need to
+                        regenerate it to get a new one.`}
+                onSubmit={() => {}} //eslint-disable-line
+                onClose={() => handleCancelModal(showUserPassword)}
+            >
+                <div className="stats shadow mx-auto">
+                    <div className="stat">
+                        <div className="stat-title">Temporary Password</div>
+                        <div className="stat-value">{tempPassword}</div>
+                    </div>
+                </div>
+            </TextOnlyModal>
         </div>
     );
 }
