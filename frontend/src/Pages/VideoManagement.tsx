@@ -2,14 +2,14 @@ import { useRef, useState } from 'react';
 import useSWR from 'swr';
 import { PlusCircleIcon } from '@heroicons/react/24/outline';
 import {
-    ModalType,
     ToastState,
     Video,
     ServerResponseMany,
     UserRole,
-    FilterLibrariesVidsandHelpfulLinksAdmin
+    FilterLibrariesVidsandHelpfulLinksAdmin,
+    MAX_DOWNLOAD_ATTEMPTS,
+    getVideoErrorMessage
 } from '../common';
-import Modal from '@/Components/Modal';
 import SearchBar from '@/Components/inputs/SearchBar';
 import DropdownControl from '@/Components/inputs/DropdownControl';
 import Pagination from '@/Components/Pagination';
@@ -19,16 +19,18 @@ import { AxiosError } from 'axios';
 import VideoCard from '@/Components/VideoCard';
 import { useAuth } from '@/useAuth';
 import { useToast } from '@/Context/ToastCtx';
-import VideoInfoModalForm from '@/Components/forms/VideoInfoModalForm';
 import { useNavigate } from 'react-router-dom';
-import { AddVideoModal } from '@/Components/modals';
+import {
+    AddVideoModal,
+    closeModal,
+    TextModalType,
+    TextOnlyModal
+} from '@/Components/modals';
 
 export default function VideoManagement() {
     const { user } = useAuth();
     const addVideoModal = useRef<HTMLDialogElement>(null);
-    const [targetVideo, setTargetVideo] = useState<Video | undefined>(
-        undefined
-    );
+    const [targetVideo, setTargetVideo] = useState<Video | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const searchQuery = useDebounceValue(searchTerm, 300);
     const videoErrorModal = useRef<HTMLDialogElement>(null);
@@ -80,6 +82,15 @@ export default function VideoManagement() {
         } else {
             toaster('Error uploading video', ToastState.error);
         }
+    };
+
+    const prepError = () => {
+        if (!targetVideo) return;
+        return targetVideo.video_download_attempts.length >=
+            MAX_DOWNLOAD_ATTEMPTS
+            ? `This video has reached the maximum download attempts. Please remove and try again`
+            : `Download is processsing: ${getVideoErrorMessage(targetVideo) ?? ''}
+                   The video download will be retried every 3 hours`;
     };
 
     const handleChange = (newSearch: string) => {
@@ -158,24 +169,17 @@ export default function VideoManagement() {
                 <span className="text-center text-warning">No results</span>
             )}
             <AddVideoModal mutate={mutate} ref={addVideoModal} />
-            {targetVideo && (
-                <div>
-                    <Modal
-                        ref={videoErrorModal}
-                        item="video info"
-                        form={
-                            <VideoInfoModalForm
-                                video={targetVideo}
-                                onClose={() => {
-                                    videoErrorModal.current?.close();
-                                    setTargetVideo(undefined);
-                                }}
-                            />
-                        }
-                        type={ModalType.Show}
-                    />
-                </div>
-            )}
+            <TextOnlyModal
+                ref={videoErrorModal}
+                type={TextModalType.Information}
+                title={'Video Status'}
+                text={prepError() ?? ''}
+                onSubmit={() => {}} //eslint-disable-line
+                onClose={() => {
+                    closeModal(videoErrorModal);
+                    setTargetVideo(null);
+                }}
+            ></TextOnlyModal>
         </>
     );
 }

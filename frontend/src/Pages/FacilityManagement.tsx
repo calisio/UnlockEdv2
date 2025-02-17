@@ -79,7 +79,6 @@ export default function FacilityManagement() {
     }, [targetFacility]);
 
     const deleteFacility = async () => {
-        console.log('hereee');
         if (targetFacility?.target.id == 1) {
             toaster('Cannot delete default facility', ToastState.error);
             deleteFacilityModal.current?.close();
