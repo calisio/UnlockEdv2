@@ -32,7 +32,7 @@ export function TextAreaInput({
                 message: `${label} should be ${length} characters or less`
             }
         }),
-        ...(validate && validate)
+        ...(validate && { validate })
     };
     return (
         <label className="form-control">

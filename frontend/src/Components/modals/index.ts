@@ -224,3 +224,50 @@ export const userInputs: InputWithOptions<ProviderPlatform>[] = [
 ];
 export { AddUserModal } from './AddUserModal';
 export { EditUserModal } from './EditUserModal';
+
+// Video Exports
+
+const getInvalidValidURLs = (urls: string[]): string[] | undefined => {
+    const badLinks: string[] = [];
+    urls.forEach((url) => {
+        const youtubeRegex =
+            /^(https?:\/\/)?(www\.youtube\.com|youtu\.?be)\/.+$/;
+        if (!youtubeRegex.test(url)) {
+            badLinks.push(url);
+        }
+    });
+    return badLinks.length > 0 ? badLinks : undefined;
+};
+
+export const checkValidVideoURLs: Validate<string, string> = (
+    input: string
+) => {
+    const urls = input
+        .split(',')
+        .map((url) => url.trim())
+        .filter((url) => url !== '');
+    if (urls.length === 0) {
+        return 'Please enter at least one valid URL.';
+    }
+    const badLinks = getInvalidValidURLs(urls);
+    if (badLinks != undefined) {
+        const badLinksString = `The following links entered are not valid Youtube links: ${badLinks.join(', ')}`;
+        return badLinksString;
+    }
+    return true;
+};
+
+export const videoInputs: Input[] = [
+    {
+        type: FormInputTypes.TextArea,
+        label: `This will begin to attempt to download videos. You can enter
+        links from youtube or any other popular video hosting site.
+        If there is an error, downloads will be attempted up to 5
+        times, after which time you will need to re-add the video.`,
+        interfaceRef: 'videoURLs',
+        required: false,
+        validate: checkValidVideoURLs
+    }
+];
+
+export { AddVideoModal } from './AddVideoModal';

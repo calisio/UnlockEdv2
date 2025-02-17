@@ -9,7 +9,6 @@ import {
     UserRole,
     FilterLibrariesVidsandHelpfulLinksAdmin
 } from '../common';
-import AddVideosForm from '@/Components/forms/AddVideosForm';
 import Modal from '@/Components/Modal';
 import SearchBar from '@/Components/inputs/SearchBar';
 import DropdownControl from '@/Components/inputs/DropdownControl';
@@ -22,6 +21,7 @@ import { useAuth } from '@/useAuth';
 import { useToast } from '@/Context/ToastCtx';
 import VideoInfoModalForm from '@/Components/forms/VideoInfoModalForm';
 import { useNavigate } from 'react-router-dom';
+import { AddVideoModal } from '@/Components/modals';
 
 export default function VideoManagement() {
     const { user } = useAuth();
@@ -66,13 +66,6 @@ export default function VideoManagement() {
             delay *= 2;
             setTimeout((delay: number) => pollVideos(delay), delay, delay);
         });
-    };
-
-    const handleAddVideoSuccess = (msg: string, state: ToastState) => {
-        if (state !== ToastState.null) toaster(msg, state);
-        addVideoModal.current?.close();
-        setPolling(true);
-        setTimeout(() => pollVideos(1000), 1000);
     };
 
     const handleRetryVideo = async (video: Video) => {
@@ -164,12 +157,7 @@ export default function VideoManagement() {
             {!isLoading && !error && videoData.length === 0 && (
                 <span className="text-center text-warning">No results</span>
             )}
-            <Modal
-                ref={addVideoModal}
-                type={ModalType.Add}
-                item="Videos"
-                form={<AddVideosForm onSuccess={handleAddVideoSuccess} />}
-            />
+            <AddVideoModal mutate={mutate} ref={addVideoModal} />
             {targetVideo && (
                 <div>
                     <Modal
