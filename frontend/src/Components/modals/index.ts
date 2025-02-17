@@ -37,6 +37,7 @@ export enum FormInputTypes {
     Dropdown,
     TextArea,
     MultiSelectDropdown,
+    Checkbox,
     Unique
 }
 
@@ -139,8 +140,27 @@ export const providerInputs: Input[] = [
         required: true
     }
 ];
+
 export { AddProviderModal } from './AddProviderModal';
 export { EditProviderModal } from './EditProviderModal';
+
+export const registerProviderInputs: Input[] = [
+    {
+        type: FormInputTypes.Checkbox,
+        label: 'Auto register',
+        interfaceRef: 'auto_register',
+        required: false
+    },
+    {
+        type: FormInputTypes.Text,
+        label: 'Redirect URL',
+        interfaceRef: 'redirect_url',
+        required: false,
+        length: 100
+    }
+];
+
+export { RegisterOIDCClientModal } from './RegisterOIDCClientModal';
 
 // Helpful Links Exports
 export const linkInputs: Input[] = [
@@ -230,9 +250,11 @@ export { EditUserModal } from './EditUserModal';
 const getInvalidValidURLs = (urls: string[]): string[] | undefined => {
     const badLinks: string[] = [];
     urls.forEach((url) => {
-        const youtubeRegex =
-            /^(https?:\/\/)?(www\.youtube\.com|youtu\.?be)\/.+$/;
-        if (!youtubeRegex.test(url)) {
+        if (
+            url.includes('youtube') &&
+            !url.includes('watch?v=') &&
+            !url.includes('youtu.be')
+        ) {
             badLinks.push(url);
         }
     });

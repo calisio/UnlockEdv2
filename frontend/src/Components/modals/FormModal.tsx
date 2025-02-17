@@ -6,6 +6,7 @@ import {
     useForm
 } from 'react-hook-form';
 import {
+    CheckboxInput,
     CloseX,
     DropdownInput,
     MultiSelectDropdownInput,
@@ -126,7 +127,18 @@ export const FormModal = forwardRef(function FormModal<T extends FieldValues>(
                                             label={input.label}
                                             options={input.options ?? []}
                                             interfaceRef={'platforms'}
-                                            required={false}
+                                            required={input.required}
+                                            errors={errors}
+                                            register={register}
+                                        />
+                                    );
+                                }
+                                if (input.type === FormInputTypes.Checkbox) {
+                                    return (
+                                        <CheckboxInput
+                                            label={input.label}
+                                            interfaceRef={input.interfaceRef}
+                                            required={input.required}
                                             errors={errors}
                                             register={register}
                                         />

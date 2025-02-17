@@ -1,5 +1,5 @@
 import { forwardRef } from 'react';
-import { CRUDModalProps, providerInputs, FormModal } from '.';
+import { CRUDModalProps, providerInputs, FormModal, closeModal } from '.';
 import {
     ProviderPlatform,
     ProviderResponse,
@@ -30,6 +30,7 @@ export const AddProviderModal = forwardRef(function (
         }
         toaster('Provider platform created successfully', ToastState.success);
         await mutate();
+        closeModal(addProviderModal);
     };
     return (
         <FormModal

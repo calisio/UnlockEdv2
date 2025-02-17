@@ -1,11 +1,8 @@
 import ProviderCard from '@/Components/ProviderCard';
 import { AxiosError } from 'axios';
-import Modal from '@/Components/Modal';
 import {
-    ModalType,
     OidcClient,
     ProviderPlatform,
-    ServerResponse,
     ToastState,
     ProviderPlatformState,
     FeatureAccess,
@@ -15,12 +12,18 @@ import {
 import { PlusCircleIcon } from '@heroicons/react/24/outline';
 import { useRef, useState, useEffect } from 'react';
 import useSWR from 'swr';
-import RegisterOidcClientForm from '@/Components/forms/RegisterOidcClientForm';
-import NewOidcClientNotification from '@/Components/NewOidcClientNotification';
 import API from '@/api/api';
 import { useToast } from '@/Context/ToastCtx';
 import { hasFeature, useAuth } from '@/useAuth';
-import { EditProviderModal, showModal } from '@/Components/modals';
+import {
+    AddProviderModal,
+    closeModal,
+    EditProviderModal,
+    RegisterOIDCClientModal,
+    showModal,
+    TextModalType,
+    TextOnlyModal
+} from '@/Components/modals';
 
 export default function ProviderPlatformManagement() {
     const { user } = useAuth();
@@ -34,7 +37,7 @@ export default function ProviderPlatformManagement() {
     );
     const openOidcClientModal = useRef<HTMLDialogElement>(null);
     const openOidcRegistrationModal = useRef<HTMLDialogElement>(null);
-    const [oidcClient, setOidcClient] = useState<OidcClient | undefined>();
+    const [oidcClient, setOidcClient] = useState<OidcClient | null>(null);
     const { toaster } = useToast();
     const {
         data: providers,
@@ -77,24 +80,11 @@ export default function ProviderPlatformManagement() {
         setEditProvider(prov);
     };
 
-    const onRegisterOidcClientClose = (
-        response: ServerResponse<OidcClient>,
-        state: ToastState
-    ) => {
-        openOidcClientModal.current?.close();
+    const onRegisterOidcClientClose = (oidcClient: OidcClient) => {
         setEditProvider(null);
-        if (!response && state === ToastState.success) {
-            toaster('OIDC client registered successfully', state);
-        } else if (!response && state === ToastState.error) {
-            toaster('Failed to register OIDC client', state);
-        } else {
-            setOidcClient(response.data as OidcClient);
-            openOidcRegistrationModal.current?.showModal();
-        }
-        void mutate();
-        if (response && state) {
-            toaster(response.message, state);
-        }
+        console.log(oidcClient);
+        setOidcClient(oidcClient);
+        showModal(openOidcRegistrationModal);
     };
 
     const handleToggleArchiveProvider = async (provider: ProviderPlatform) => {
@@ -215,44 +205,58 @@ export default function ProviderPlatformManagement() {
                 </table>
             </div>
             {/* Modals */}
+            <AddProviderModal mutate={mutate} ref={addProviderModal} />
             <EditProviderModal
                 mutate={mutate}
                 target={editProvider ?? undefined}
                 ref={editProviderModal}
             />
-            <Modal
-                type={ModalType.Register}
-                item="Provider"
-                form={
-                    editProvider ? (
-                        <RegisterOidcClientForm
-                            provider={editProvider}
-                            onSuccess={onRegisterOidcClientClose}
-                            onClose={() => openOidcClientModal.current?.close()}
-                        />
-                    ) : (
-                        <div></div>
-                    )
-                }
+            <RegisterOIDCClientModal
+                mutate={mutate}
+                target={editProvider ?? undefined}
+                onSuccess={onRegisterOidcClientClose}
                 ref={openOidcClientModal}
             />
-            <Modal
-                type={ModalType.Register}
-                item="OIDC Client"
-                form={
-                    oidcClient ? (
-                        <NewOidcClientNotification
-                            client={oidcClient}
-                            onClose={() =>
-                                openOidcRegistrationModal.current?.close()
-                            }
-                        />
-                    ) : (
-                        <div></div>
-                    )
-                }
+            <TextOnlyModal
                 ref={openOidcRegistrationModal}
-            />
+                type={TextModalType.Information}
+                title={'OIDC Client Registration'}
+                text={
+                    'The provider platform has successfully been registered. Please make sure to save the following information.'
+                }
+                onSubmit={() => {}} //eslint-disable-line
+                onClose={() => {
+                    closeModal(openOidcRegistrationModal);
+                    setOidcClient(null);
+                }}
+            >
+                <p className="body flex flex-row justify-between">
+                    <span className="font-bold">Client ID: </span>
+                    <span className="text-warning">
+                        {oidcClient?.client_id}
+                    </span>
+                </p>
+                <p className="body flex flex-row justify-between">
+                    <span className="font-bold">Client Secret: </span>
+                    <span className="text-warning">
+                        {oidcClient?.client_secret}
+                    </span>
+                </p>
+                <p className="body flex flex-row justify-between">
+                    <span className="font-bold">Authorization Endpoint: </span>
+                    <span className="text-warning">{oidcClient?.auth_url}</span>
+                </p>
+                <p className="body flex flex-row justify-between">
+                    <span className="font-bold">Token Endpoint: </span>
+                    <span className="text-warning">
+                        {oidcClient?.token_url}
+                    </span>
+                </p>
+                <p className="body flex flex-row justify-between">
+                    <span className="font-bold">Scopes: </span>
+                    <span className="text-warning">{oidcClient?.scope}</span>
+                </p>
+            </TextOnlyModal>
         </div>
     );
 }

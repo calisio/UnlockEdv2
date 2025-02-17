@@ -10,3 +10,4 @@ export { CancelButton } from './CancelButton';
 export { DeleteButton } from './DeleteButton';
 export { ConfirmButton } from './ConfirmButton';
 export { CancelSubmitRow } from './CancelSubmitRow';
+export { CheckboxInput } from './CheckboxInput';
